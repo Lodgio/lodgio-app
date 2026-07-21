@@ -1,0 +1,454 @@
+Delivered-To: a.d.koryakin@gmail.com
+Received: by 2002:a05:7300:b54d:b0:300:11f7:2b9a with SMTP id dg13csp527064dyb;
+        Wed, 10 Jun 2026 08:35:04 -0700 (PDT)
+X-Received: by 2002:a05:6102:4243:b0:6c6:74d:e09c with SMTP id ada2fe7eead31-719348f0b55mr5132652137.11.1781105704484;
+        Wed, 10 Jun 2026 08:35:04 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1781105704; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=GfO5mqi4eU3RlF8gvaKE3mK7JW1QBp5EZdPF/S+e27b1qM67iQvnWniJ303G9nN96Y
+         4mzeUp/e59vDwQOg2QQp4rzbnJ4SAUs8jRQrUzFrUT2QRiye7WtQ+SX0NwrgBqJusIYN
+         g3Ks+Suknk5lGJNAI6cN3O4amYza0w44pG3g8llvYReiznND0putSl3ggjiDV2UBDVII
+         phjYr9hIo8BtBo67Dx18MUwGGsCLql5DFXZZx9cn1Zqrc49KeVb6hp3HXW8O7YXV5PSw
+         088iydVAYUctA3LZxOkgstiBfWj2XV07ggR++2lN5nGZrh0vAJSVW1gIR0yIn0gCedyS
+         0Sog==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=XegC1udEFdbToVt6dOzDeZvUU5W5caX75fdQo5azbaU=;
+        fh=YDNpSFR2K8oxg+vkIMKsqejvacJ2F02mJS5bskikylg=;
+        b=eCks+Ipw1j1dc59X3dqqHtcWjlT7IvDPU7s9UYE6/SpmwxVRgdSbh2rnJ8LmuqSYC6
+         eIH6lzO0Jz3l10XXRs8iQJqbKZcer0Hf/b2tIhBpYJmBlEZ9NNg++Ge9lIrRYaO4K+pO
+         hfThoEAbLG3L58YuXbCNEIGMo61ab5P05sR6ppuANe3yUHuSvrUBlx4KPMdyFdDslGJV
+         v4bnn/RxNZxaLb7e4GiekGjZE9RluLOa0gZAqln7Q7eE1omPbSVCQCQNUKRLvSxxLLIG
+         b0cFgaxlGKx5KcuBSXHNVsNT2+lQa6NOV07r+qoLrP4TxLyUn1j8pF5RULRijNSWdTw5
+         EX7w==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@cadabra.studio header.s=google header.b=QPYvtxbe;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of idia@cadabra.studio designates 209.85.220.41 as permitted sender) smtp.mailfrom=idia@cadabra.studio;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=cadabra.studio;
+       dara=pass header.i=@gmail.com
+Return-Path: <idia@cadabra.studio>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id ada2fe7eead31-71bc895cd72sor281958137.9.2026.06.10.08.35.04
+        for <a.d.koryakin@gmail.com>
+        (Google Transport Security);
+        Wed, 10 Jun 2026 08:35:04 -0700 (PDT)
+Received-SPF: pass (google.com: domain of idia@cadabra.studio designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@cadabra.studio header.s=google header.b=QPYvtxbe;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of idia@cadabra.studio designates 209.85.220.41 as permitted sender) smtp.mailfrom=idia@cadabra.studio;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=cadabra.studio;
+       dara=pass header.i=@gmail.com
+ARC-Seal: i=1; a=rsa-sha256; t=1781105704; cv=none;
+        d=google.com; s=arc-20240605;
+        b=jCzU7zVUKAgo9CK9suRrMG2Wcxy+FLV3ZggH2Uvqr3mrBgS1paqrAivsRL/pb2hAC2
+         Dh4cRKObI5vmMmHEK0bnlrl6Pq6z6DFn+QFhAJEL8Jt2Dp2zLJH1ovh5TCYW8HHlemRj
+         q+rtB1KCInJwITZAvFwEONo7x4kGK/pBiT7Ci7sWfkWZpiPc9qIZIzvpE9o6mVvI7qZJ
+         6aVDTUiK6+amY0+guyGysCFgI18gzXGtwXofmJRq/Kib3Y0xiqD9GRRJ6lGj6CPIWh4L
+         fFw4EQn2gGDmzGaGFP7uwB6eSI9SQYgt6IyxujBdsB9efSkfauNGczV0ApxL2+YF2GZu
+         rbZw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=XegC1udEFdbToVt6dOzDeZvUU5W5caX75fdQo5azbaU=;
+        fh=YDNpSFR2K8oxg+vkIMKsqejvacJ2F02mJS5bskikylg=;
+        b=hg7GNCRdWuJSQjV1Lx2+0c0aAX9B6EifoIPxEN2RexijIh16+N3Sqa84P3pf/yW0t7
+         +Ow/LcEMf7Ku1WfvS9He8QlqJBfE1hNx4ExWIyp3qrIp77nsblfeV+XTT/a07YcwkdCe
+         07dR/DwwBDqPiKOF8jQc68TvV3qLMUk4Qz9gki6+MpMdhI+Vl8I3EJ8mBMPLtNOmIgtC
+         +owhNHx2Mdzagrp5D1lYug/CxYkswbez4o5PXcTR7AgRAtuzRcyy5zIzUp+9PCVRMy2s
+         IoQ/bHIB3LpWGykjBIOrUtMGfVHGqcCky9xQqUPXdBcFC/kIRwnxyJRJgxuHwi+YBsT5
+         MO8A==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cadabra.studio; s=google; t=1781105704; x=1781710504; dara=google.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XegC1udEFdbToVt6dOzDeZvUU5W5caX75fdQo5azbaU=;
+        b=QPYvtxbe1iiZXM2gXKHc4mv9QprEw454jn1H8MbadBTG7nEICdbzHXxS7gAIDzt6lE
+         3Safb2sSzKzBuOYa7UK9vALDTmUXJ6jwJwTnk+9QqBL6gInZdCieUMV7jRVnqEgqHpc/
+         fc/sNyhyNdKpMb9RaZzqkleOp9NdkcCy/E0bQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781105704; x=1781710504;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XegC1udEFdbToVt6dOzDeZvUU5W5caX75fdQo5azbaU=;
+        b=lPfIhBkuQdHwsP+Nb80FwBgztBosOoWfY6tc6+xREvoW7p+6lu+rwexM+nWekKwLGA
+         TuMHga6zi4rlqWRhkGmQiPfIr+9V63VAl+RLkdfQ8JxvMAeaM/Rlu7YA/r3D2qSJvRfO
+         6uWSxspr3ELtJsXnXRvPYOKKRwoUUt/PuGPk7UnRACDzk8mN6iaUGB/geJAN0tl8KtEI
+         7gZUHl0aa2/47XJMzRIMQvAhaog6trnt4SyeEob3v8EO6uNTTFzxJ5PU4PlfJVlT/P+h
+         LE5MJ/g9RbTyD3fSwcqGB0bUD4sNab037I1kkx1VrZaMk9jW5Blf8B1t9s5hF2F8hTog
+         G9OQ==
+X-Gm-Message-State: AOJu0YwY99pj1wlU9rZ7SzcCI9SuC8afElOlhLft7m+EjdZMc027SR72
+	UK8mdIPMBnPqQwKFwPeOWYt/TVa/AGSPYB72i4u5ECV4EPjxPfYJyq5qslvNc1Q1UbWy0Hviarc
+	4pdSknIZZeBVUHCQPTGIQBFENpcsm+astjnuCmrfkfNT/RLhnDZeBKBQ=
+X-Gm-Gg: Acq92OFUNpVz5uai7/CinLmUcdg2yJ3G6JpOcXWBkh7Y8RP8z8tZ7CEYpXKM7SJYiz1
+	UPL2DcjBDoVis9eeMitgBklTAyNpcG6KYS8Yml0HCv6jJlGfjgDSskdUVYkUrMjB4COo/7PvYwd
+	tpiAD7Ew71kE1w4ZhjoQFJ4M1EcQmEB9GOlCSFsSunZ1hQYno/PxxEx7NB0EbaWS2cgvJisM9w5
+	x5ItPIscEnqQRFSPkKuYO7wi2+ta/I4P+d3jNQmzWj0w4blO/IDzG1tNDt0xFnO1rWp/nnvtZZM
+	Zm16oSCtYXexAMRQ
+X-Received: by 2002:a05:6102:511e:b0:639:3b08:d64c with SMTP id
+ ada2fe7eead31-719361e4657mr4785036137.13.1781105703662; Wed, 10 Jun 2026
+ 08:35:03 -0700 (PDT)
+MIME-Version: 1.0
+References: <JEMTIZz6SOqmfcm6cB1GBQ@geopod-ismtpd-9> <CAC48Y=c7zDBoS_UCj8Zo1+3y3hrF-uALG2RpVzLhdddteYYtXg@mail.gmail.com>
+In-Reply-To: <CAC48Y=c7zDBoS_UCj8Zo1+3y3hrF-uALG2RpVzLhdddteYYtXg@mail.gmail.com>
+From: Igor Dia <idia@cadabra.studio>
+Date: Wed, 10 Jun 2026 17:34:52 +0200
+X-Gm-Features: AVVi8CfYeANoV6WvLq3fWWGvZTWyDOJJiRcltmQvjG1o9VJ7Rq3gFsMUjBZUVpQ
+Message-ID: <CAGzoBr_uOUN3JW77fk_XSdFdykCZ203QeftKpC4K8ORsdqadLQ@mail.gmail.com>
+Subject: =?UTF-8?Q?Fwd=3A_We_sent_a_payout_of_=E2=82=B912=2C879=2E00_INR?=
+To: a.d.koryakin@gmail.com
+Content-Type: multipart/alternative; boundary="000000000000c644640653e7fcdc"
+
+--000000000000c644640653e7fcdc
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+---------- Forwarded message ---------
+From: Rohaan Wani <rohaanwani001@gmail.com>
+Date: Tue, Jun 9, 2026 at 10:30=E2=80=AFPM
+Subject: Fwd: We sent a payout of =E2=82=B912,879.00 INR
+To: <idia@cadabra.studio>
+
+
+
+
+---------- Forwarded message ---------
+From: Airbnb <automated@airbnb.com>
+Date: Tue, 2 Jun 2026 at 12:34
+Subject: We sent a payout of =E2=82=B912,879.00 INR
+To: <rohaanwani001@gmail.com>
+
+
+[image: Airbnb]
+<https://www.airbnb.co.in/?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9C=
+QVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80>
+
+=E2=82=B912,879.00 INR was sent today
+
+Your money was sent on June 2 and should arrive by June 9, 2026.
+View earnings
+<https://www.airbnb.co.in/users/transaction_history/431330509?payoutTransac=
+tion=3D81UKNCVda8snW88GlGp4N5e20CD&c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRf=
+U0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80>
+
+Bank account
+
+Sadeeq Ahmed Wani, Savings 9812 (INR)
+
+Payouts received by your bank on weekends or holidays will be processed on
+the next business day.
+
+Airbnb account ID
+
+431330509
+
+Details
+
+Manish Dahiya
+
+-=E2=82=B9810.00 INR
+
+Tax Withholding for India Income =E2=80=A2 6/1/2026 - 6/5/2026
+
+Rehaish Maple (580085949982394966)
+
+HM2SJPMSJS
+
+Manish Dahiya
+
+=E2=82=B913,689.00 INR
+
+Home =E2=80=A2 6/1/2026 - 6/5/2026
+
+Rehaish Maple (580085949982394966)
+
+HM2SJPMSJS
+
+Total paid:
+
+=E2=82=B912,879.00 INR
+
+Get help with payouts
+
+Find answers to top questions about getting paid in our Help Center.
+
+Go to Help Center
+<https://www.airbnb.co.in/help/topic/1538?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQ=
+VlPVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80>
+[image: Airbnb]
+
+Get the app.
+
+The fastest, easiest way to Airbnb.
+[image: App Store]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Fairbnb.sng.link%2FA6f9up%2Fdvs6%3F_smtype%3D3%26pcid%3D.pi=
+80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D>
+[image:
+Google Play]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Fairbnb.sng.link%2FA6f9up%2Fqh0lc%3F_dl%3Dairbnb%3A%2F%2Fs%=
+2Fhomes%26_smtype%3D3%26pcid%3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9C=
+QVNFXzIwMjU%3D>
+
+Airbnb Payments India Pvt. Ltd.
+Level 9, Spaze i-Tech Park, A1 Tower, Sector 49, Sohna Road, Gurugaram,
+India - 122018
+
+[image: Instagram]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Fwww.instagram.com%2Fairbnb>
+[image:
+TikTok]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Fwww.tiktok.com%2F%40airbnb>
+[image:
+YouTube]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Fwww.youtube.com%2F%40airbnb>
+[image:
+Twitter]
+<https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVl=
+PVVRfU0VOVF9CQVNFXzIwMjU%3D&euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&url=
+=3Dhttps%3A%2F%2Ftwitter.com%2FAirbnb>
+
+--000000000000c644640653e7fcdc
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><br><div class=3D"gmail_quote gmail_quote_container"><=
+div dir=3D"ltr" class=3D"gmail_attr">---------- Forwarded message ---------=
+<br>From: <strong class=3D"gmail_sendername" dir=3D"auto">Rohaan Wani</stro=
+ng> <span dir=3D"auto">&lt;<a href=3D"mailto:rohaanwani001@gmail.com">rohaa=
+nwani001@gmail.com</a>&gt;</span><br>Date: Tue, Jun 9, 2026 at 10:30=E2=80=
+=AFPM<br>Subject: Fwd: We sent a payout of =E2=82=B912,879.00 INR<br>To:  &=
+lt;idia@cadabra.studio&gt;<br></div><br><br><div dir=3D"ltr"><br><br><div c=
+lass=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">---------- Forwa=
+rded message ---------<br>From: <strong class=3D"gmail_sendername" dir=3D"a=
+uto">Airbnb</strong> <span dir=3D"auto">&lt;<a href=3D"mailto:automated@air=
+bnb.com" target=3D"_blank">automated@airbnb.com</a>&gt;</span><br>Date: Tue=
+, 2 Jun 2026 at 12:34<br>Subject: We sent a payout of =E2=82=B912,879.00 IN=
+R<br>To:  &lt;<a href=3D"mailto:rohaanwani001@gmail.com" target=3D"_blank">=
+rohaanwani001@gmail.com</a>&gt;<br></div><br><br><div><div></div><div style=
+=3D"margin:0 auto!important;padding:0" id=3D"m_-4074885489358910003m_886091=
+4380926987482body"><div style=3D"color:transparent;display:none!important;f=
+ont-size:0px;height:0;opacity:0;width:0"><img src=3D"https://u60337934.ct.s=
+endgrid.net/wf/open?upn=3Du001.suv6-2B-2FeuNCd7eEawE6qsm7vnrvxnDAMqU66OwbW4=
+6IrnQspxKczCcV-2BuuMEnhqlgpyazbtv1ikp3CX2MjEukEBs1K9-2FBcURxvWdP0L-2FNiPrgh=
+o-2B-2BHXhfFtgCL80GpVc51v5RX-2B1r746R5oq6D-2BA3i7Q1-2BtW8HLDgByvxAeYuyG6juW=
+S7d-2FwrIE4O4RfmCMtLQKsJ5z1ropyKhSTH84WXo1zWn-2BBBi1gVgEtVnvpxtjS6d2VF7kQU4=
+bXNYNIjF8WVtlUPzABGcsHd04R5IVbCRmSDPbbntDZ1LLmYrqzlK8VoKEdMiWFSGLeVej5k22Vg=
+lSTkbPYq-2BAG7O1ZMS6AwT1yz254cf5Ax8Eg8nEFqZCllXqz0jBrNSpUZ3DtN5DkpQc7DS-2BH=
+lp0z7E9I68nOhizxszQ23PvR8F9Gb6MgHcPBqdl8FRreHaqfjkpOZb7AHAHmwJep4NIvnwBmxqe=
+vo1Bx0w6EDSLfSjz5ttsB4t4bytjExcU2-2FedE4J5A-2FGEaMqrcpsWZr-2FBxg2oqw0oYNiWN=
+COMGTnpnLqcoejOQIjn3oQE-2Fb6508Vm5G6oy2RVGgUMDZ3KHFfnxvYLpB-2F7VdgAlRO7c-2B=
+b-2F7648KqnvIgHruFffe-2B2bjG4mS6ltIeZ7vl9ADaTyfH-2FMLx-2BvqXDLx3L-2BiJd0B9x=
+stg3Ztqk1Nz3XLIxHWGYddfbGf-2BFlrvQWYOiJpjIB0tJVi31f-2FPdMOnX-2F-2FwyM11sbv9=
+-2Bz-2BqWb6K3-2Fl6xd9Y0xPfyQDERgXEngnI" alt=3D"" width=3D"1" height=3D"1" b=
+order=3D"0" style=3D"height:1px!important;width:1px!important;border-width:=
+0!important;margin-top:0!important;margin-bottom:0!important;margin-right:0=
+!important;margin-left:0!important;padding-top:0!important;padding-bottom:0=
+!important;padding-right:0!important;padding-left:0!important"></div><div i=
+d=3D"m_-4074885489358910003m_8860914380926987482app" style=3D"font-family:A=
+irbnb Cereal,Helvetica Neue,Helvetica,sans-serif"><div dir=3D"ltr"><div sty=
+le=3D"color:#222222;width:100%;vertical-align:top;overflow:hidden;box-sizin=
+g:border-box;border-radius:12px;padding:0;border:1px solid #dddddd;margin-l=
+eft:auto;margin-right:auto;max-width:640px"><table cellpadding=3D"0" style=
+=3D"border-collapse:collapse;border-spacing:0;width:100%" role=3D"presentat=
+ion"><tbody><tr style=3D"margin:0px!important"><td style=3D"padding-left:48=
+px;padding-right:48px"><table cellpadding=3D"0" style=3D"border-collapse:co=
+llapse;border-spacing:0;width:100%" role=3D"presentation"><tbody><tr style=
+=3D"margin:0px!important"><td align=3D"center" style=3D"line-height:0px;pad=
+ding-bottom:24px;padding-top:32px"><a rel=3D"noreferrer" href=3D"https://ww=
+w.airbnb.co.in/?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU=
+%3D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80" style=3D"font-size:18p=
+x;line-height:28px;display:inline-block;height:28px;font-weight:700;color:#=
+222222;text-decoration:underline!important" target=3D"_blank"><img alt=3D"A=
+irbnb" src=3D"https://a0.muscache.com/im/pictures/airbnb-platform-assets/Ai=
+rbnbPlatformAssets-canvas-email/original/088c2933-673e-4ff9-89e8-6215848098=
+eb.png" style=3D"height:28px;width:26px;border:0!important" width=3D"26" he=
+ight=3D"28"></a></td></tr></tbody></table></td></tr></tbody></table><div st=
+yle=3D"padding-left:48px;padding-right:48px;padding-top:8px"><div><p style=
+=3D"color:#222222;text-align:center;margin:0;font-weight:700;font-size:26px=
+;line-height:30px">=E2=82=B912,879.00 INR was sent today</p></div></div><di=
+v style=3D"padding-left:48px;padding-right:48px;padding-top:16px"><p style=
+=3D"font-size:18px;line-height:28px;text-align:center;margin:0">Your money =
+was sent on June 2 and should arrive by June 9, 2026.</p></div><div style=
+=3D"padding-left:48px;padding-right:48px;padding-top:16px"><table cellpaddi=
+ng=3D"0" role=3D"presentation" style=3D"border-collapse:collapse;width:100%=
+" width=3D"100%"><tbody><tr><td style=3D"text-align:center" align=3D"center=
+"><div style=3D"width:100%;display:inline-block;height:48px;background:line=
+ar-gradient(90deg,#e61e4d 1.83%,#e31c5f 50.07%,#d70466 96.34%);background-c=
+olor:#ff385c;text-align:center;font-weight:500;border-radius:12px"><a href=
+=3D"https://www.airbnb.co.in/users/transaction_history/431330509?payoutTran=
+saction=3D81UKNCVda8snW88GlGp4N5e20CD&amp;c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQ=
+VlPVVRfU0VOVF9CQVNFXzIwMjU%3D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b=
+80" style=3D"display:inline-block;text-decoration:none;color:white;line-hei=
+ght:20px;font-size:16px;text-align:center;font-weight:500;padding:16px 32px=
+" target=3D"_blank"><span style=3D"color:#ffffff">View earnings</span></a><=
+/div></td></tr></tbody></table></div><div style=3D"padding-left:48px;paddin=
+g-right:48px;padding-top:32px"><div><div style=3D"border-top:1px solid #ddd=
+ddd"></div></div></div><div style=3D"padding-left:48px;padding-right:48px;p=
+adding-top:32px"><div><p style=3D"color:#222222;line-height:24px;margin:0;f=
+ont-weight:700;font-size:22px">Bank account</p></div></div><div style=3D"pa=
+dding-left:48px;padding-right:48px;padding-top:8px"><p style=3D"font-size:1=
+8px;line-height:28px;margin:0">Sadeeq Ahmed  Wani, Savings 9812 (INR)</p></=
+div><div style=3D"padding-left:48px;padding-right:48px;padding-top:16px"><p=
+ style=3D"font-size:18px;line-height:28px;margin:0">Payouts received by you=
+r bank on weekends or holidays will be processed on the next business day.<=
+/p></div><div style=3D"padding-left:48px;padding-right:48px;padding-top:32p=
+x"><div><div style=3D"border-top:1px solid #dddddd"></div></div></div><div =
+style=3D"padding-left:48px;padding-right:48px;padding-top:32px"><div><p sty=
+le=3D"color:#222222;line-height:24px;margin:0;font-weight:700;font-size:22p=
+x">Airbnb account ID</p></div></div><div style=3D"padding-left:48px;padding=
+-right:48px;padding-top:8px"><p style=3D"font-size:18px;line-height:28px;ma=
+rgin:0">431330509</p></div><div style=3D"padding-left:48px;padding-right:48=
+px;padding-top:32px"><div><div style=3D"border-top:1px solid #dddddd"></div=
+></div></div><div style=3D"padding-left:48px;padding-right:48px;padding-top=
+:32px"><div><p style=3D"color:#222222;line-height:24px;margin:0;font-weight=
+:700;font-size:22px">Details</p></div></div><div><div style=3D"padding-left=
+:48px;padding-right:48px;padding-top:24px"><table cellpadding=3D"0" role=3D=
+"presentation" style=3D"border-collapse:collapse;width:100%;border-spacing:=
+0;font-size:inherit" width=3D"100%"><tbody><tr style=3D"margin:0"><td align=
+=3D"left" width=3D"100%"><div style=3D"padding-bottom:8px"><div><p style=3D=
+"color:#222222;font-size:18px;line-height:24px;font-weight:700;margin:0!imp=
+ortant">Manish Dahiya</p></div></div></td><td align=3D"right"><div style=3D=
+"padding-bottom:8px"><div><p style=3D"color:#222222;font-size:18px;line-hei=
+ght:24px;font-weight:700;margin:0!important"><span style=3D"white-space:now=
+rap">-=E2=82=B9810.00 INR</span></p></div></div></td></tr></tbody></table><=
+/div><div style=3D"padding-left:48px;padding-right:48px"><p style=3D"font-s=
+ize:18px;line-height:28px;margin:0">Tax Withholding for India Income =E2=80=
+=A2 6/1/2026 - 6/5/2026</p><p style=3D"font-size:18px;line-height:28px;marg=
+in:0">Rehaish Maple (580085949982394966)</p><p style=3D"font-size:18px;line=
+-height:28px;margin:0">HM2SJPMSJS</p></div></div><div><div style=3D"padding=
+-left:48px;padding-right:48px;padding-top:24px"><table cellpadding=3D"0" ro=
+le=3D"presentation" style=3D"border-collapse:collapse;width:100%;border-spa=
+cing:0;font-size:inherit" width=3D"100%"><tbody><tr style=3D"margin:0"><td =
+align=3D"left" width=3D"100%"><div style=3D"padding-bottom:8px"><div><p sty=
+le=3D"color:#222222;font-size:18px;line-height:24px;font-weight:700;margin:=
+0!important">Manish Dahiya</p></div></div></td><td align=3D"right"><div sty=
+le=3D"padding-bottom:8px"><div><p style=3D"color:#222222;font-size:18px;lin=
+e-height:24px;font-weight:700;margin:0!important"><span style=3D"white-spac=
+e:nowrap">=E2=82=B913,689.00 INR</span></p></div></div></td></tr></tbody></=
+table></div><div style=3D"padding-left:48px;padding-right:48px"><p style=3D=
+"font-size:18px;line-height:28px;margin:0">Home =E2=80=A2 6/1/2026 - 6/5/20=
+26</p><p style=3D"font-size:18px;line-height:28px;margin:0">Rehaish Maple (=
+580085949982394966)</p><p style=3D"font-size:18px;line-height:28px;margin:0=
+">HM2SJPMSJS</p></div></div><div style=3D"padding-left:48px;padding-right:4=
+8px;padding-top:24px"><table cellpadding=3D"0" role=3D"presentation" style=
+=3D"border-collapse:collapse;width:100%;border-spacing:0;font-size:inherit"=
+ width=3D"100%"><tbody><tr style=3D"margin:0"><td align=3D"left" width=3D"1=
+00%"><div style=3D"padding-bottom:8px"><div><p style=3D"color:#222222;line-=
+height:24px;font-weight:700;font-size:22px;margin:0!important">Total paid:<=
+/p></div></div></td><td align=3D"right"><div style=3D"padding-bottom:8px"><=
+div><p style=3D"color:#222222;line-height:24px;font-weight:700;font-size:22=
+px;margin:0!important"><span style=3D"white-space:nowrap">=E2=82=B912,879.0=
+0 INR</span></p></div></div></td></tr></tbody></table></div><div style=3D"p=
+adding-left:48px;padding-right:48px;padding-top:16px"><div><div style=3D"bo=
+rder-top:1px solid #dddddd"></div></div></div><div style=3D"padding-left:48=
+px;padding-right:48px;padding-top:24px"><div><p style=3D"color:#222222;line=
+-height:24px;margin:0;font-weight:700;font-size:22px">Get help with payouts=
+</p></div></div><div style=3D"padding-left:48px;padding-right:48px;padding-=
+top:16px"><p style=3D"font-size:18px;line-height:28px;margin:0">Find answer=
+s to top questions about getting paid in our Help Center.</p></div><div sty=
+le=3D"padding-left:48px;padding-right:48px;padding-top:16px"><a rel=3D"nore=
+ferrer" style=3D"color:#222222;font-size:18px;line-height:28px;font-weight:=
+700;text-decoration:underline!important" href=3D"https://www.airbnb.co.in/h=
+elp/topic/1538?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%=
+3D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80" target=3D"_blank"><p st=
+yle=3D"font-size:18px;line-height:28px;margin:0;font-weight:500">Go to Help=
+ Center</p></a></div><div style=3D"padding-left:48px;padding-right:48px;pad=
+ding-bottom:16px;padding-top:32px"><div><div style=3D"border-top:1px solid =
+#dddddd"></div></div></div><div style=3D"padding-bottom:24px;padding-top:24=
+px;padding-left:48px;padding-right:48px;text-align:center"><table cellpaddi=
+ng=3D"0" role=3D"presentation" style=3D"border-collapse:collapse;width:100%=
+;border-spacing:0;line-height:0;font-size:inherit" width=3D"100%"><tbody><t=
+r style=3D"margin:0"><td style=3D"width:100%;text-align:center" width=3D"10=
+0%" align=3D"center"><img alt=3D"Airbnb" src=3D"https://a0.muscache.com/im/=
+pictures/airbnb-platform-assets/AirbnbPlatformAssets-canvas-email/original/=
+52c01bc6-468a-4193-9213-0074aadb978b.png" style=3D"width:42px;height:42px;b=
+order:0!important" width=3D"42" height=3D"42"></td></tr></tbody></table><di=
+v style=3D"padding-top:16px"><p style=3D"color:#222222;font-size:18px;font-=
+weight:500;margin:0;line-height:22px">Get the app.</p><p style=3D"color:#22=
+2222;font-size:18px;font-weight:500;margin:0;line-height:22px">The fastest,=
+ easiest way to Airbnb.</p><div style=3D"padding-top:16px"><table cellpaddi=
+ng=3D"0" role=3D"presentation" style=3D"border-collapse:collapse;width:100%=
+;border-spacing:0;font-size:inherit" width=3D"100%"><tbody><tr style=3D"mar=
+gin:0"><td width=3D"25%"></td><td><a rel=3D"noreferrer" style=3D"color:#222=
+222;font-size:18px;line-height:28px;font-weight:700;text-decoration:underli=
+ne!important" aria-label=3D"App Store" href=3D"https://www.airbnb.co.in/ext=
+ernal_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D&a=
+mp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&amp;url=3Dhttps%3A%2F%2Fairb=
+nb.sng.link%2FA6f9up%2Fdvs6%3F_smtype%3D3%26pcid%3D.pi80.pkUEFZTUVOVFNfSE9T=
+VF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D" target=3D"_blank"><img alt=3D"App Store=
+" height=3D"40" src=3D"https://a0.muscache.com/pictures/0bd65cfc-ddd4-4ef1-=
+a4e3-1d5e79b225ca.jpg" width=3D"119.66" style=3D"border:0!important"></a></=
+td><td style=3D"padding-left:12px"><a rel=3D"noreferrer" style=3D"color:#22=
+2222;font-size:18px;line-height:28px;font-weight:700;text-decoration:underl=
+ine!important" aria-label=3D"Google Play" href=3D"https://www.airbnb.co.in/=
+external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3=
+D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&amp;url=3Dhttps%3A%2F%2Fa=
+irbnb.sng.link%2FA6f9up%2Fqh0lc%3F_dl%3Dairbnb%3A%2F%2Fs%2Fhomes%26_smtype%=
+3D3%26pcid%3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D" ta=
+rget=3D"_blank"><img alt=3D"Google Play" height=3D"40" src=3D"https://a0.mu=
+scache.com/pictures/12ed8a90-f7ac-439a-99b3-cbc7aedee0a6.jpg" width=3D"130"=
+ style=3D"border:0!important"></a></td><td width=3D"25%"></td></tr></tbody>=
+</table></div></div><div style=3D"padding-top:48px"><div style=3D"font-size=
+:14px;line-height:20px;margin:0"><p style=3D"font-size:14px;line-height:20p=
+x;margin:0"></p><div>Airbnb Payments India Pvt. Ltd.</div><div>Level 9, Spa=
+ze i-Tech Park,=20
+A1 Tower, Sector 49, Sohna Road,=20
+Gurugaram, India - 122018</div><p></p></div></div><div style=3D"padding-bot=
+tom:24px;padding-top:24px"><table cellpadding=3D"0" role=3D"presentation" s=
+tyle=3D"border-collapse:collapse;width:100%;border-spacing:0;font-size:inhe=
+rit" width=3D"100%"><tbody><tr style=3D"margin:0"><td width=3D"45%"></td><t=
+d style=3D"padding-left:0px"><a rel=3D"noreferrer" style=3D"color:#222222;f=
+ont-weight:700;display:block!important" href=3D"https://www.airbnb.co.in/ex=
+ternal_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D&=
+amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&amp;url=3Dhttps%3A%2F%2Fwww=
+.instagram.com%2Fairbnb" target=3D"_blank"><img alt=3D"Instagram" src=3D"ht=
+tps://a0.muscache.com/im/pictures/mediaverse/canvas-email/original/d98da6f9=
+-52e5-47f8-9f15-134acfbf5e4b.png" style=3D"width:24px;border:0!important" w=
+idth=3D"24"></a></td><td style=3D"padding-left:12px"><a rel=3D"noreferrer" =
+style=3D"color:#222222;font-weight:700;display:block!important" href=3D"htt=
+ps://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVR=
+fU0VOVF9CQVNFXzIwMjU%3D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&amp=
+;url=3Dhttps%3A%2F%2Fwww.tiktok.com%2F%40airbnb" target=3D"_blank"><img alt=
+=3D"TikTok" src=3D"https://a0.muscache.com/im/pictures/mediaverse/canvas-em=
+ail/original/e7400c06-00e9-459b-9829-1cc0d4c0326b.png" style=3D"width:24px;=
+border:0!important" width=3D"24"></a></td><td style=3D"padding-left:12px"><=
+a rel=3D"noreferrer" style=3D"color:#222222;font-weight:700;display:block!i=
+mportant" href=3D"https://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTU=
+VOVFNfSE9TVF9QQVlPVVRfU0VOVF9CQVNFXzIwMjU%3D&amp;euid=3D1f693cee-d41e-ed14-=
+6489-e71e45563b80&amp;url=3Dhttps%3A%2F%2Fwww.youtube.com%2F%40airbnb" targ=
+et=3D"_blank"><img alt=3D"YouTube" src=3D"https://a0.muscache.com/im/pictur=
+es/AirbnbPlatformAssets/AirbnbPlatformAssets-canvas-email/original/c6afc71f=
+-604b-42eb-b7c5-86a35e8d07af.png" style=3D"width:24px;border:0!important" w=
+idth=3D"24"></a></td><td style=3D"padding-left:12px"><a rel=3D"noreferrer" =
+style=3D"color:#222222;font-weight:700;display:block!important" href=3D"htt=
+ps://www.airbnb.co.in/external_link?c=3D.pi80.pkUEFZTUVOVFNfSE9TVF9QQVlPVVR=
+fU0VOVF9CQVNFXzIwMjU%3D&amp;euid=3D1f693cee-d41e-ed14-6489-e71e45563b80&amp=
+;url=3Dhttps%3A%2F%2Ftwitter.com%2FAirbnb" target=3D"_blank"><img alt=3D"Tw=
+itter" src=3D"https://a0.muscache.com/im/pictures/mediaverse/canvas-email/o=
+riginal/126739e6-d2c8-47eb-82d5-c26299302f2f.png" style=3D"width:24px;borde=
+r:0!important" width=3D"24"></a></td><td width=3D"45%"></td></tr></tbody></=
+table></div></div></div></div></div><div style=3D"color:white;display:none!=
+important;font:15px courier;line-height:0;white-space:nowrap">=C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0</div></div></div></div></d=
+iv>
+</div></div>
+
+--000000000000c644640653e7fcdc--

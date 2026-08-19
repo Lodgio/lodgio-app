@@ -197,7 +197,7 @@ function parseListingName(body: string): string {
   if (listingAlt) return listingAlt;
 
   const beforeRoomType = body.match(
-    /\n([^\n]+)\n+(?:Entire home\/apt|Private room|Shared room|Hotel room)/i
+    /\n\s*([^\n]+?)\s*\n+\s*(?:Entire home\/apt|Private room|Shared room|Hotel room)/i
   );
   return beforeRoomType?.[1]?.trim() ?? "";
 }

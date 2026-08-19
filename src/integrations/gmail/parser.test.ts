@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import {
   classifyAirbnbEmail,
+  extractGmailApiBody,
   prepareAirbnbEmail,
 } from "@/integrations/gmail/email-utils";
 import { parseAirbnbEmail } from "@/integrations/gmail/parser";
@@ -30,6 +31,71 @@ describe("prepareAirbnbEmail", () => {
     expect(prepared.referenceDate?.getFullYear()).toBe(2026);
     expect(prepared.text).toContain("HM2SJPMSJS");
     expect(prepared.text).toContain("Rehaish Maple");
+  });
+});
+
+describe("Gmail API native confirmation", () => {
+  it("classifies from the header subject when the body has no Subject: line", () => {
+    const html = `
+      <html><body>
+        <p>New booking confirmed! Sadeeq Ahmed arrives Aug 19.</p>
+        <a href="https://www.airbnb.co.in/hosting/reservations/details/HMZB3YZBBA">View</a>
+        <p>Check-in</p><p>Wed, Aug 19</p><p>2:00 PM</p>
+        <p>Checkout</p><p>Thu, Aug 20</p><p>12:00 PM</p>
+        <p>Rehaish Maple</p>
+        <p>Entire home/apt</p>
+        <p>Guests: 2</p>
+        <p>You earn ₹10,000.00</p>
+      </body></html>
+    `;
+    const prepared = prepareAirbnbEmail(
+      html,
+      "2026-08-19T11:04:00.000Z",
+      "Reservation confirmed - Sadeeq Ahmed Wani arrives Aug 19"
+    );
+
+    expect(prepared.emailType).toBe("confirmation");
+    expect(prepared.subject).toContain("Sadeeq Ahmed");
+
+    const parsed = parseAirbnbEmail(prepared.text, "native-sadeeq", {
+      subject: prepared.subject,
+      referenceDate: prepared.referenceDate,
+    });
+    expect(parsed.parseIncomplete).toBeUndefined();
+    expect(parsed.airbnbBookingId).toBe("HMZB3YZBBA");
+    expect(parsed.guestName).toBe("Sadeeq Ahmed Wani");
+    expect(parsed.listingName).toBe("Rehaish Maple");
+    expect(parsed.checkIn).toBe("2026-08-19");
+    expect(parsed.checkOut).toBe("2026-08-20");
+  });
+
+  it("walks nested multipart payloads and decodes base64url", () => {
+    const html =
+      "<html><body>Reservation confirmed inner html HMZB3YZBBA</body></html>";
+    const encoded = Buffer.from(html)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+
+    const body = extractGmailApiBody({
+      payload: {
+        mimeType: "multipart/mixed",
+        headers: [{ name: "Subject", value: "Reservation confirmed - Sadeeq arrives Aug 19" }],
+        parts: [
+          {
+            mimeType: "multipart/alternative",
+            parts: [
+              { mimeType: "text/plain", body: { data: "" } },
+              { mimeType: "text/html", body: { data: encoded } },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(body).toContain("HMZB3YZBBA");
+    expect(body).toContain("inner html");
   });
 });
 

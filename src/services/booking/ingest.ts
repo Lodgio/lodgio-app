@@ -49,7 +49,7 @@ export async function pollGmailConnection(connectionId: string) {
       .eq("host_id", connection.host_id);
 
     for (const email of emails) {
-      const prepared = prepareAirbnbEmail(email.body, email.receivedAt);
+      const prepared = prepareAirbnbEmail(email.body, email.receivedAt, email.subject);
       if (prepared.emailType !== "confirmation") {
         continue;
       }

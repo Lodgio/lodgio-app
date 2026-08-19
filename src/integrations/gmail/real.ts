@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import type { Cursor, GmailClient, HostConnection, RawEmail } from "@/integrations/types";
 import { IntegrationError } from "@/integrations/types";
+import { extractGmailApiBody, gmailHeader, type GmailApiPart } from "@/integrations/gmail/email-utils";
 import { env } from "@/lib/env";
 
 const AIRBNB_QUERY = 'subject:"Reservation confirmed"';
@@ -42,7 +43,9 @@ export class RealGmailClient implements GmailClient {
           format: "full",
         });
 
-        const body = extractBody(full.data as Parameters<typeof extractBody>[0]);
+        const payload = full.data.payload as GmailApiPart | undefined;
+        const body = extractGmailApiBody({ payload });
+        const subject = gmailHeader(payload?.headers, "Subject");
         const receivedAt = full.data.internalDate
           ? new Date(parseInt(full.data.internalDate, 10)).toISOString()
           : new Date().toISOString();
@@ -52,6 +55,7 @@ export class RealGmailClient implements GmailClient {
           threadId: msg.threadId ?? msg.id,
           snippet: full.data.snippet ?? "",
           body,
+          subject,
           receivedAt,
         });
       }
@@ -73,26 +77,4 @@ export class RealGmailClient implements GmailClient {
       throw new IntegrationError(`Gmail API error: ${message}`, "transient", error);
     }
   }
-}
-
-function extractBody(message: {
-  payload?: {
-    parts?: Array<{ mimeType?: string | null; body?: { data?: string | null } | null }> | null;
-    body?: { data?: string | null } | null;
-    mimeType?: string | null;
-  } | null;
-}): string {
-  const parts = message.payload?.parts ?? [];
-  for (const part of parts) {
-    if (part.mimeType === "text/plain" && part.body?.data) {
-      return Buffer.from(part.body.data, "base64").toString("utf8");
-    }
-    if (part.mimeType === "text/html" && part.body?.data) {
-      return Buffer.from(part.body.data, "base64").toString("utf8");
-    }
-  }
-  if (message.payload?.body?.data) {
-    return Buffer.from(message.payload.body.data, "base64").toString("utf8");
-  }
-  return "";
 }

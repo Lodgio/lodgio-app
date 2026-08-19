@@ -15,6 +15,8 @@ export interface RawEmail {
   snippet: string;
   body: string;
   receivedAt: string;
+  /** Gmail/RFC header subject — native API payloads have no "Subject:" line in the body. */
+  subject?: string;
 }
 
 export interface ParsedBookingEmail {

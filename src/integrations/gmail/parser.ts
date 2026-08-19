@@ -201,23 +201,41 @@ function parseGuestName(body: string, subject: string): string {
   return standalone?.[1]?.trim() ?? "";
 }
 
+function looksLikeListingName(name: string): boolean {
+  const trimmed = name.replace(/\s+/g, " ").trim();
+  if (trimmed.length < 2 || trimmed.length > 80) return false;
+  if (/https?:\/\//i.test(trimmed) || /airbnb\.com/i.test(trimmed)) return false;
+  if (/\b(house rules|safety-info|updating your)\b/i.test(trimmed)) return false;
+  if (/^(is|from|we|hi|hello|thanks?|ok|shown|chosen|please|dear)\b/i.test(trimmed)) {
+    return false;
+  }
+  if (trimmed.split(" ").length > 8) return false;
+  return true;
+}
+
 function parseListingName(body: string): string {
   const labeled = body.match(/(?:Listing|Property)[:\s]+(.+?)(?:\n|$)/i);
-  if (labeled) return labeled[1].trim();
+  if (labeled && looksLikeListingName(labeled[1])) return labeled[1].trim();
 
   const imageAlts = [...body.matchAll(/\[image:\s*([^\]]+)\]/gi)].map((match) => match[1].trim());
-  const listingAlt = imageAlts.find((alt) => !/^airbnb$/i.test(alt));
+  const listingAlt = imageAlts.find((alt) => !/^airbnb$/i.test(alt) && looksLikeListingName(alt));
   if (listingAlt) return listingAlt;
 
   const beforeRoomType = body.match(
     /\n\s*([^\n]+?)\s*\n+\s*(?:Entire home\/apt|Private room|Shared room|Hotel room)/i
   );
-  if (beforeRoomType) return beforeRoomType[1].trim();
+  if (beforeRoomType && looksLikeListingName(beforeRoomType[1])) {
+    return beforeRoomType[1].trim();
+  }
 
   const nearRoomUrl = body.match(
     /\/rooms\/\d+[\s\S]{0,80}?\n\s*([A-Z][^\n]{2,80})\s*(?:\n|$)/i
   );
-  return nearRoomUrl?.[1]?.trim() ?? "";
+  if (nearRoomUrl && looksLikeListingName(nearRoomUrl[1])) {
+    return nearRoomUrl[1].trim();
+  }
+
+  return "";
 }
 
 function parseBookingId(body: string): string {

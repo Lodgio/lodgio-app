@@ -229,6 +229,29 @@ describe("parseAirbnbEmail", () => {
     expect(parsed.guestNotes).toContain("Kashmir");
   });
 
+  it("does not treat guest notes or house-rule links as the listing name", () => {
+    const body = `
+Reservation confirmed - Guest arrives May 13
+Confirmation code HMCYHQNP5W
+Check-in
+Wed, May 13
+Checkout
+Fri, May 22
+https://www.airbnb.com/rooms/1676985216690195939
+is suitable for children by  https://www.airbnb.com/hosting/listings/1676985216690195939/details/safety-info updating your House Rules.
+from 13 May till 21 May, 22 May checkout.. We are four adults.
+we will take care of it
+`;
+    const parsed = parseAirbnbEmail(body, "noisy-listing", {
+      subject: "Reservation confirmed - Guest arrives May 13",
+      referenceDate: new Date("2026-05-01T00:00:00.000Z"),
+    });
+
+    expect(parsed.airbnbBookingId).toBe("HMCYHQNP5W");
+    expect(parsed.listingName).toBe("");
+    expect(parsed.parseIssues?.some((issue) => issue.startsWith("listingName:"))).toBe(true);
+  });
+
   it("parses full raw eml without pre-processing options", () => {
     const parsed = parseAirbnbEmail(readFixture("confirmed-manish-2026.eml"), "raw-eml");
 

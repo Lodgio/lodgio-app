@@ -5,7 +5,7 @@ import { prepareAirbnbEmail } from "@/integrations/gmail/email-utils";
 import { parseAirbnbEmail } from "@/integrations/gmail/parser";
 import { IntegrationError } from "@/integrations/types";
 import { runMatchingForHost } from "@/services/matching/matching-service";
-import { findPropertyByListingName } from "@/services/booking/property-booking-service";
+import { findPropertyFromEmail } from "@/services/booking/property-booking-service";
 
 export async function pollAllGmailConnections() {
   const supabase = createServiceClient();
@@ -58,7 +58,10 @@ export async function pollGmailConnection(connectionId: string) {
         subject: prepared.subject,
         referenceDate: prepared.referenceDate,
       });
-      if (parsed.parseIncomplete || !parsed.airbnbBookingId) {
+      const listingOnlyIncomplete =
+        Boolean(parsed.parseIncomplete) &&
+        (parsed.parseIssues ?? []).every((issue) => issue.startsWith("listingName:"));
+      if (!parsed.airbnbBookingId || (parsed.parseIncomplete && !listingOnlyIncomplete)) {
         console.warn("parse_incomplete", {
           emailId: email.id,
           subject: prepared.subject,
@@ -71,7 +74,24 @@ export async function pollGmailConnection(connectionId: string) {
         continue;
       }
 
-      const property = findPropertyByListingName(properties ?? [], parsed.listingName);
+      const property = findPropertyFromEmail(
+        properties ?? [],
+        parsed.listingName,
+        prepared.text
+      );
+      const listingName = property?.name ?? parsed.listingName;
+      if (!listingName) {
+        console.warn("parse_incomplete", {
+          emailId: email.id,
+          subject: prepared.subject,
+          issues: parsed.parseIssues ?? ["listingName: Required"],
+          bookingId: parsed.airbnbBookingId,
+          listingName: parsed.listingName,
+          checkIn: parsed.checkIn,
+          checkOut: parsed.checkOut,
+        });
+        continue;
+      }
 
       const { data: existingGuest } = await supabase
         .from("guests")
@@ -108,7 +128,7 @@ export async function pollGmailConnection(connectionId: string) {
         amount_payable_to_airbnb: parsed.amountPayableToAirbnb,
         guest_notes: parsed.guestNotes,
         raw_email_ref: parsed.rawEmailRef,
-        listing_name: parsed.listingName,
+        listing_name: listingName,
       };
 
       if (existingBooking) {

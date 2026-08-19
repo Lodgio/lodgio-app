@@ -15,6 +15,30 @@ export function findPropertyByListingName(
   return properties.find((property) => normalizeListingName(property.name) === normalized);
 }
 
+export function findPropertyFromEmail(
+  properties: Array<Pick<Tables<"properties">, "id" | "name">>,
+  listingName: string,
+  body = ""
+) {
+  return (
+    findPropertyByListingName(properties, listingName) ??
+    findPropertyMentionedInText(properties, body)
+  );
+}
+
+function findPropertyMentionedInText(
+  properties: Array<Pick<Tables<"properties">, "id" | "name">>,
+  body: string
+) {
+  const text = body.toLowerCase();
+  return [...properties]
+    .sort((a, b) => b.name.length - a.name.length)
+    .find((property) => {
+      const name = normalizeListingName(property.name);
+      return name.length >= 3 && text.includes(name);
+    });
+}
+
 export async function remapUnmappedBookingsForHost(hostId: string): Promise<number> {
   const supabase = createServiceClient();
   const [{ data: properties }, { data: bookings }] = await Promise.all([

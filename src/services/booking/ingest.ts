@@ -59,7 +59,15 @@ export async function pollGmailConnection(connectionId: string) {
         referenceDate: prepared.referenceDate,
       });
       if (parsed.parseIncomplete || !parsed.airbnbBookingId) {
-        console.warn("parse_incomplete", { emailId: email.id });
+        console.warn("parse_incomplete", {
+          emailId: email.id,
+          subject: prepared.subject,
+          issues: parsed.parseIssues,
+          bookingId: parsed.airbnbBookingId,
+          listingName: parsed.listingName,
+          checkIn: parsed.checkIn,
+          checkOut: parsed.checkOut,
+        });
         continue;
       }
 

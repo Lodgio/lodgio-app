@@ -114,10 +114,8 @@ export function prepareAirbnbEmail(
 ): PreparedAirbnbEmail {
   const decoded = decodeQuotedPrintable(raw);
   const inner = extractInnerAirbnbBlock(decoded);
-  const plain =
-    inner.includes("<html") || inner.includes("<table")
-      ? stripHtml(inner)
-      : inner;
+  const looksLikeHtml = /<(?:html|table|div|td|p|span|body|a)\b/i.test(inner);
+  const plain = looksLikeHtml ? stripHtml(inner) : inner;
   const text = normalizeWhitespace(plain);
   const subject =
     headerSubject?.trim() ||
@@ -178,5 +176,9 @@ function collectPartBodies(
 export function extractGmailApiBody(message: { payload?: GmailApiPart | null }): string {
   const acc = { plain: [] as string[], html: [] as string[] };
   collectPartBodies(message.payload, acc);
-  return acc.plain[0] || acc.html[0] || "";
+  const plain = acc.plain.find((part) => part.trim()) ?? "";
+  const html = acc.html.find((part) => part.trim()) ?? "";
+  // Airbnb's text/plain part is often a short teaser; the HTML has codes, dates, listing.
+  if (html && html.length >= plain.length) return html;
+  return plain || html;
 }

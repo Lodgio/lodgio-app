@@ -97,6 +97,84 @@ describe("Gmail API native confirmation", () => {
     expect(body).toContain("HMZB3YZBBA");
     expect(body).toContain("inner html");
   });
+
+  it("prefers richer HTML over a short text/plain teaser", () => {
+    const encode = (value: string) =>
+      Buffer.from(value)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+
+    const body = extractGmailApiBody({
+      payload: {
+        mimeType: "multipart/alternative",
+        parts: [
+          {
+            mimeType: "text/plain",
+            body: { data: encode("New booking confirmed! Sadeeq Ahmed arrives Aug 19.") },
+          },
+          {
+            mimeType: "text/html",
+            body: {
+              data: encode(`
+                <div>
+                  <p>New booking confirmed! Sadeeq Ahmed arrives Aug 19.</p>
+                  <a href="https://www.airbnb.co.in/hosting/reservations/details/HMZB3YZBBA">View</a>
+                  <p>Check-in</p><p>Wed, Aug 19</p>
+                  <p>Checkout</p><p>Thu, Aug 20</p>
+                  <p>Rehaish Maple</p>
+                  <p>Entire home/apt</p>
+                </div>
+              `),
+            },
+          },
+        ],
+      },
+    });
+
+    expect(body).toContain("HMZB3YZBBA");
+    expect(body).toContain("Rehaish Maple");
+
+    const prepared = prepareAirbnbEmail(
+      body,
+      "2026-08-19T11:04:00.000Z",
+      "Reservation confirmed - Sadeeq Ahmed Wani arrives Aug 19"
+    );
+    const parsed = parseAirbnbEmail(prepared.text, "plain-teaser", {
+      subject: prepared.subject,
+      referenceDate: prepared.referenceDate,
+    });
+    expect(parsed.parseIncomplete).toBeUndefined();
+    expect(parsed.airbnbBookingId).toBe("HMZB3YZBBA");
+    expect(parsed.listingName).toBe("Rehaish Maple");
+  });
+
+  it("parses div-only HTML and subject arrival date", () => {
+    const html = `
+      <div>
+        Confirmation code HMZB3YZBBA
+        Check in Aug 19, 2026
+        Check out Aug 21, 2026
+        [image: Rehaish Maple]
+      </div>
+    `;
+    const prepared = prepareAirbnbEmail(
+      html,
+      "2026-08-19T11:04:00.000Z",
+      "Reservation confirmed - Sadeeq Ahmed Wani arrives Aug 19"
+    );
+    expect(prepared.text).not.toContain("<div");
+    const parsed = parseAirbnbEmail(prepared.text, "div-only", {
+      subject: prepared.subject,
+      referenceDate: prepared.referenceDate,
+    });
+    expect(parsed.parseIncomplete).toBeUndefined();
+    expect(parsed.airbnbBookingId).toBe("HMZB3YZBBA");
+    expect(parsed.checkIn).toBe("2026-08-19");
+    expect(parsed.checkOut).toBe("2026-08-21");
+    expect(parsed.listingName).toBe("Rehaish Maple");
+  });
 });
 
 describe("classifyAirbnbEmail", () => {

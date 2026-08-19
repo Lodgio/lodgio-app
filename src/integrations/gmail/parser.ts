@@ -70,7 +70,7 @@ function parseCheckInOutSection(
     );
 
   if (kind === "in") {
-    const blockMatch = body.match(blockLine("Check-in"));
+    const blockMatch = body.match(blockLine("Check-in")) ?? body.match(blockLine("Check in"));
     if (blockMatch) {
       const line1 = blockMatch[1].trim();
       const line2 = blockMatch[2]?.trim() ?? null;
@@ -86,7 +86,10 @@ function parseCheckInOutSection(
   }
 
   const blockMatch =
-    body.match(blockLine("Checkout")) ?? body.match(/Check[- ]out[:\s]+(.+)/i);
+    body.match(blockLine("Checkout")) ??
+    body.match(blockLine("Check-out")) ??
+    body.match(blockLine("Check out")) ??
+    body.match(/Check[- ]out[:\s]+(.+)/i);
   if (!blockMatch) {
     return { dateText: null, timeText: null };
   }
@@ -117,6 +120,16 @@ function parseDate(text: string, referenceDate?: Date | null): string | null {
 
   const iso = cleaned.match(/(\d{4}-\d{2}-\d{2})/);
   if (iso) return iso[1];
+
+  const mdyYear = cleaned.match(
+    /\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})(?:,?\s+(\d{4}))?/i
+  );
+  if (mdyYear) {
+    const month = MONTH_MAP[mdyYear[1].slice(0, 3).toLowerCase()];
+    const day = mdyYear[2].padStart(2, "0");
+    if (mdyYear[3]) return `${mdyYear[3]}-${month}-${day}`;
+    if (referenceDate) return `${referenceDate.getFullYear()}-${month}-${day}`;
+  }
 
   const dmy = cleaned.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/i);
   if (dmy) {
@@ -199,7 +212,12 @@ function parseListingName(body: string): string {
   const beforeRoomType = body.match(
     /\n\s*([^\n]+?)\s*\n+\s*(?:Entire home\/apt|Private room|Shared room|Hotel room)/i
   );
-  return beforeRoomType?.[1]?.trim() ?? "";
+  if (beforeRoomType) return beforeRoomType[1].trim();
+
+  const nearRoomUrl = body.match(
+    /\/rooms\/\d+[\s\S]{0,80}?\n\s*([A-Z][^\n]{2,80})\s*(?:\n|$)/i
+  );
+  return nearRoomUrl?.[1]?.trim() ?? "";
 }
 
 function parseBookingId(body: string): string {
@@ -209,7 +227,10 @@ function parseBookingId(body: string): string {
   if (labeled) return labeled[1];
 
   const fromUrl = body.match(/\/hosting\/reservations\/details\/([A-Z0-9]{8,12})/i);
-  return fromUrl?.[1] ?? "";
+  if (fromUrl) return fromUrl[1];
+
+  const standalone = body.match(/\b(HM[A-Z0-9]{8,10})\b/);
+  return standalone?.[1] ?? "";
 }
 
 function parseGuestNotes(body: string): string | null {
@@ -256,12 +277,27 @@ export function parseAirbnbEmail(
   const checkInSection = parseCheckInOutSection(text, "in");
   const checkOutSection = parseCheckInOutSection(text, "out");
 
-  const checkIn = checkInSection.dateText
+  let checkIn = checkInSection.dateText
     ? parseDate(checkInSection.dateText, referenceDate)
     : null;
-  const checkOut = checkOutSection.dateText
+  let checkOut = checkOutSection.dateText
     ? parseDate(checkOutSection.dateText, referenceDate)
     : null;
+
+  if (!checkIn) {
+    const arrives = subject.match(/arrives\s+(.+?)$/i);
+    if (arrives) checkIn = parseDate(arrives[1], referenceDate);
+  }
+
+  if (!checkOut) {
+    const range = text.match(
+      /\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}(?:,?\s+\d{4})?)\s*[-–—]\s*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}(?:,?\s+\d{4})?)/i
+    );
+    if (range) {
+      checkIn = checkIn ?? parseDate(range[1], referenceDate);
+      checkOut = parseDate(range[2], referenceDate);
+    }
+  }
 
   const partial = {
     airbnbBookingId: parseBookingId(text),
@@ -296,5 +332,6 @@ export function parseAirbnbEmail(
   return {
     ...partial,
     parseIncomplete: true,
+    parseIssues: result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
   } as ParsedBookingEmail;
 }

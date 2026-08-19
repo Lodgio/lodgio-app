@@ -36,6 +36,7 @@ export interface ParsedBookingEmail {
   listingName: string;
   rawEmailRef: string;
   parseIncomplete?: boolean;
+  parseIssues?: string[];
 }
 
 export interface GmailClient {

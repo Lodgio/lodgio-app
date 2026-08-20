@@ -56,7 +56,9 @@ export async function sendBookingMessages(formData: FormData) {
     .maybeSingle();
 
   if (!booking) throw new Error("Booking not found");
-  if (booking.status !== "matched") throw new Error("Booking is not waiting to send messages");
+  if (!["matched", "messaging", "completed"].includes(booking.status)) {
+    throw new Error("Booking is not ready to send messages");
+  }
 
   await processMatchedBooking(bookingId);
   revalidatePath("/dashboard/bookings");

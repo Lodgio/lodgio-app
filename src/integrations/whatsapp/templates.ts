@@ -57,7 +57,7 @@ const DEFAULT_TEMPLATES: Record<TemplateKind, Record<"en" | "hi", TemplateConfig
   },
   caretaker_notify: {
     en: {
-      metaName: "caretaker_checkin_en",
+      metaName: "caretaker_notify_en",
       variableKeys: [
         "guest_name",
         "property_name",
@@ -71,7 +71,7 @@ const DEFAULT_TEMPLATES: Record<TemplateKind, Record<"en" | "hi", TemplateConfig
       ],
     },
     hi: {
-      metaName: "caretaker_checkin_hi",
+      metaName: "caretaker_notify_hi",
       variableKeys: [
         "guest_name",
         "property_name",
@@ -122,15 +122,22 @@ export function getTemplateRef(
   };
 }
 
+function sanitizeTemplateValue(value: string): string {
+  const flattened = value
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/ {2,}/g, " ")
+    .trim();
+  // Meta rejects empty body parameters and newlines in text params.
+  return flattened.slice(0, 1024) || "—";
+}
+
 export function buildTemplateVars(
   keys: string[],
   values: Record<string, string>
 ): Record<string, string> {
   const result: Record<string, string> = {};
   for (const key of keys) {
-    // Meta rejects empty body parameters; use a neutral dash for missing data.
-    const raw = (values[key] ?? "").trim();
-    result[key] = raw || "—";
+    result[key] = sanitizeTemplateValue(values[key] ?? "");
   }
   return result;
 }

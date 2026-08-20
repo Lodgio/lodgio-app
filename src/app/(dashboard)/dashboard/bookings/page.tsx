@@ -40,13 +40,32 @@ export default async function BookingsPage({
   const rows = bookings ?? [];
 
   const guestIds = [...new Set(rows.map((b) => b.guest_id).filter(Boolean))] as string[];
+  const bookingIds = rows.map((b) => b.id);
 
-  const [{ data: properties }, { data: guests }] = await Promise.all([
+  const [{ data: properties }, { data: guests }, { data: messageLogs }] = await Promise.all([
     supabase.from("properties").select("id, name").order("name"),
     guestIds.length
       ? supabase.from("guests").select("id, name, whatsapp_number").in("id", guestIds)
       : Promise.resolve({ data: [] as Array<Pick<Tables<"guests">, "id" | "name" | "whatsapp_number">> }),
+    bookingIds.length
+      ? supabase
+          .from("message_log")
+          .select("booking_id, recipient_type, template_kind, status")
+          .in("booking_id", bookingIds)
+      : Promise.resolve({ data: [] as Array<Pick<Tables<"message_log">, "booking_id" | "recipient_type" | "template_kind" | "status">> }),
   ]);
+
+  const retryableBookingIds = new Set<string>();
+  const succeededKeys = new Set(
+    (messageLogs ?? [])
+      .filter((log) => ["queued", "sent", "delivered"].includes(log.status))
+      .map((log) => `${log.booking_id}:${log.recipient_type}:${log.template_kind}`)
+  );
+  for (const log of messageLogs ?? []) {
+    if (log.status !== "failed") continue;
+    const key = `${log.booking_id}:${log.recipient_type}:${log.template_kind}`;
+    if (!succeededKeys.has(key)) retryableBookingIds.add(log.booking_id);
+  }
 
   const propertyMap = new Map((properties ?? []).map((p) => [p.id, p.name]));
   const guestMap = new Map((guests ?? []).map((g) => [g.id, g]));
@@ -143,11 +162,11 @@ export default async function BookingsPage({
                       </td>
                       <td className="py-3">
                         <StatusBadge status={b.status} />
-                        {b.status === "matched" ? (
+                        {b.status === "matched" || retryableBookingIds.has(b.id) ? (
                           <form action={sendBookingMessages} className="mt-2">
                             <input type="hidden" name="booking_id" value={b.id} />
                             <SubmitButton className="btn-secondary text-xs" pendingLabel="Sending…">
-                              Send messages
+                              {retryableBookingIds.has(b.id) ? "Retry messages" : "Send messages"}
                             </SubmitButton>
                           </form>
                         ) : null}

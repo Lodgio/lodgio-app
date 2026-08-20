@@ -34,12 +34,10 @@ export async function updateHostSettings(formData: FormData) {
 
   const supabase = await createClient();
   const settingsUpdate: {
-    sms_fallback_enabled: boolean;
     default_language: "en" | "hi";
     whatsapp_phone_number_id?: string | null;
     whatsapp_waba_id?: string | null;
   } = {
-    sms_fallback_enabled: formData.get("sms_fallback_enabled") === "on",
     default_language: (formData.get("default_language") as "en" | "hi") ?? "en",
   };
 

@@ -200,14 +200,6 @@ export default async function SettingsPage({
 
             <Card title="Integrations">
               <form action={updateHostSettings} className="space-y-3">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    name="sms_fallback_enabled"
-                    defaultChecked={settings?.sms_fallback_enabled}
-                  />
-                  SMS fallback enabled
-                </label>
                 <select
                   name="default_language"
                   defaultValue={settings?.default_language ?? "en"}

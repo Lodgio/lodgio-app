@@ -42,7 +42,6 @@ export async function updateHostSettings(formData: FormData) {
   const { error } = await service
     .from("host_settings")
     .update({
-      sms_fallback_enabled: formData.get("sms_fallback_enabled") === "on",
       default_language: (formData.get("default_language") as "en" | "hi") ?? "en",
     })
     .eq("host_id", hostId);

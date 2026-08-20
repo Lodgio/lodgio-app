@@ -14,7 +14,7 @@ const guestFormSchema = z.object({
     .regex(/^\+?[1-9]\d{7,14}$/, "Enter a valid phone number with country code"),
   claimedAirbnbBookingId: z.string().min(4),
   // Hidden on the guest form for the pilot; default when the field is absent.
-  idDocumentType: z.enum(["aadhaar", "passport", "other"]).default("other"),
+  idDocumentType: z.enum(["aadhaar", "passport", "other"]),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
   guestCount: z.coerce.number().int().positive().optional(),
@@ -33,7 +33,7 @@ export async function submitGuestForm(formData: FormData) {
     name: formData.get("name"),
     whatsappNumber: formData.get("whatsappNumber"),
     claimedAirbnbBookingId: formData.get("claimedAirbnbBookingId"),
-    idDocumentType: formData.get("idDocumentType") || undefined,
+    idDocumentType: formData.get("idDocumentType"),
     checkIn: formData.get("checkIn") || undefined,
     checkOut: formData.get("checkOut") || undefined,
     guestCount: formData.get("guestCount") || undefined,
@@ -51,7 +51,10 @@ export async function submitGuestForm(formData: FormData) {
   const file = formData.get("idDocument") as File | null;
   const hasFile = Boolean(file && file.size > 0);
   const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-  if (hasFile && file && (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024)) {
+  if (!hasFile || !file) {
+    redirect(checkinPath(parsed.data.hostSlug, { error: "Please upload a photo or PDF of your ID" }));
+  }
+  if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
     redirect(checkinPath(parsed.data.hostSlug, { error: "Invalid file type or size" }));
   }
 

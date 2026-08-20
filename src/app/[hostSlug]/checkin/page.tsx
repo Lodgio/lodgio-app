@@ -4,8 +4,8 @@ import { submitGuestForm } from "@/app/[hostSlug]/checkin/actions";
 import { getBookingMessagingReadiness } from "@/services/booking/property-booking-service";
 import { SubmitButton } from "@/components/submit-button";
 
-/** Pilot: hide ID upload + stay-details. Keep markup below for later re-enable. */
-const SHOW_ID_VERIFICATION = false;
+/** Pilot: hide stay-details. ID upload is required. */
+const SHOW_ID_VERIFICATION = true;
 const SHOW_STAY_DETAILS = false;
 
 function FormField({
@@ -94,8 +94,8 @@ export default async function GuestCheckinPage({
             </FormField>
 
             <FormField
-              label="Phone number"
-              hint="We'll contact you here with directions and check-in info. Include country code (+91 for India)."
+              label="WhatsApp number"
+              hint="This must be a WhatsApp number — we send check-in details there, not by SMS or regular call. Include country code (+91 for India)."
             >
               <input
                 name="whatsappNumber"
@@ -127,7 +127,7 @@ export default async function GuestCheckinPage({
           {SHOW_ID_VERIFICATION ? (
             <FormSection title="ID verification">
               <p className="text-xs leading-relaxed text-zinc-500">
-                You can upload a copy of your ID for the host&apos;s records.
+                Upload a clear photo or PDF of your Aadhaar or passport for the host&apos;s records.
               </p>
 
               <FormField label="ID type">
@@ -139,13 +139,14 @@ export default async function GuestCheckinPage({
               </FormField>
 
               <FormField
-                label="Photo of your ID (optional)"
-                hint="Upload a clear photo or PDF if available."
+                label="Photo or PDF of your ID"
+                hint="Required. JPEG, PNG, WebP, or PDF, up to 10 MB."
               >
                 <input
                   name="idDocument"
                   type="file"
-                  accept="image/*,application/pdf"
+                  required
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
                   className="field file:mr-3 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-zinc-700"
                 />
               </FormField>

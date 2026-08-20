@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
 import { isPhase12Demo } from "@/lib/demo";
 import { getHostSetupWarnings } from "@/services/booking/property-booking-service";
+import { spreadsheetUrl } from "@/services/sheets/sheets-links";
 import Link from "next/link";
 
 export default async function DashboardPage({
@@ -23,6 +24,7 @@ export default async function DashboardPage({
     { count: bookingCount },
     { data: recentBookings },
     { data: gmail },
+    { data: settings },
   ] = await Promise.all([
     supabase
       .from("bookings")
@@ -42,7 +44,15 @@ export default async function DashboardPage({
       .order("created_at", { ascending: false })
       .limit(5),
     supabase.from("gmail_connections").select("status, email_address, last_synced_at").maybeSingle(),
+    supabase
+      .from("host_settings")
+      .select("sheets_export_enabled, sheets_spreadsheet_id")
+      .maybeSingle(),
   ]);
+
+  const sheetUrl = settings?.sheets_spreadsheet_id
+    ? spreadsheetUrl(settings.sheets_spreadsheet_id)
+    : null;
 
   const warnings: string[] = [];
 
@@ -143,6 +153,38 @@ export default async function DashboardPage({
             </ul>
           )}
         </Card>
+
+        {!phase12 ? (
+          <Card title="Guest data">
+            {sheetUrl && settings?.sheets_export_enabled ? (
+              <div className="space-y-2 text-sm">
+                <p className="text-zinc-600">
+                  Bookings are exported to your Google Sheet after check-in messages go out. You
+                  do not need to open Supabase.
+                </p>
+                <a
+                  href={sheetUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block text-blue-600 underline"
+                >
+                  Open guest data in Google Sheets
+                </a>
+              </div>
+            ) : (
+              <div className="space-y-2 text-sm">
+                <p className="text-zinc-600">
+                  Guest and booking data also lives in your Lodgio dashboard. To work in a
+                  spreadsheet, enable export once under Settings — it creates a Google Sheet in
+                  your Drive.
+                </p>
+                <Link href="/dashboard/settings" className="inline-block text-blue-600">
+                  Enable Google Sheets export
+                </Link>
+              </div>
+            )}
+          </Card>
+        ) : null}
 
         {!phase12 ? (
           <Card title="Guest check-in link">

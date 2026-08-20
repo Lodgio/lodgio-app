@@ -22,7 +22,7 @@ export default async function SubmissionsPage() {
                 <tr className="border-b text-left text-zinc-500">
                   <th className="py-2 pr-4">Guest</th>
                   <th className="py-2 pr-4">Claimed booking ID</th>
-                  <th className="py-2 pr-4">Phone</th>
+                  <th className="py-2 pr-4">WhatsApp</th>
                   <th className="py-2">Submitted</th>
                 </tr>
               </thead>

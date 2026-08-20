@@ -118,14 +118,6 @@ export default async function AdminHostDetailPage({
           <Card title="Settings">
             <form action={updateHostSettings} className="space-y-3">
               <input type="hidden" name="host_id" value={host.id} />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="sms_fallback_enabled"
-                  defaultChecked={settings.sms_fallback_enabled}
-                />
-                SMS fallback enabled
-              </label>
               <div className="rounded-md border border-zinc-100 bg-zinc-50 px-3 py-2 text-sm">
                 <p className="font-medium">Google Sheets export</p>
                 <p className="text-zinc-600">

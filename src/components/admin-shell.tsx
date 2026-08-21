@@ -1,13 +1,9 @@
 import Link from "next/link";
 import { signOut } from "@/app/(auth)/actions";
 import { SubmitButton } from "@/components/submit-button";
+import { createServiceClient } from "@/lib/supabase/service";
 
-const adminNav = [
-  { href: "/admin", label: "Hosts" },
-  { href: "/admin/admins", label: "Admins" },
-];
-
-export function AdminShell({
+export async function AdminShell({
   children,
   title,
   adminEmail,
@@ -16,6 +12,18 @@ export function AdminShell({
   title: string;
   adminEmail: string;
 }) {
+  const service = createServiceClient();
+  const { count } = await service
+    .from("host_settings")
+    .select("*", { count: "exact", head: true })
+    .eq("gmail_access_status", "pending_review");
+  const pending = count ?? 0;
+
+  const adminNav = [
+    { href: "/admin", label: "Hosts", badge: pending },
+    { href: "/admin/admins", label: "Admins", badge: 0 },
+  ];
+
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900">
       <header className="border-b border-zinc-200 bg-white">
@@ -46,9 +54,14 @@ export function AdminShell({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-white hover:shadow-sm"
+              className="flex items-center justify-between rounded-md px-3 py-2 text-sm text-zinc-700 hover:bg-white"
             >
-              {item.label}
+              <span>{item.label}</span>
+              {item.badge > 0 ? (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
+                  {item.badge}
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>

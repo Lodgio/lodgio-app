@@ -237,6 +237,38 @@ export async function mapPropertyCaretaker(formData: FormData) {
   revalidatePath("/dashboard/caretakers");
 }
 
+export async function requestGmailAccess(formData: FormData) {
+  const host = await getCurrentHost();
+  if (!host) throw new Error("Unauthorized");
+
+  const email = String(formData.get("gmail_email") ?? "")
+    .trim()
+    .toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    redirect("/dashboard/onboarding?step=1&error=Enter+a+valid+Gmail+address");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("host_settings")
+    .update({
+      gmail_requested_email: email,
+      gmail_access_status: "pending_review",
+      gmail_access_requested_at: new Date().toISOString(),
+    })
+    .eq("host_id", host.id);
+
+  if (error) {
+    redirect(`/dashboard/onboarding?step=1&error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/dashboard/onboarding");
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
+  redirect("/dashboard/onboarding?step=1&gmail=requested");
+}
+
 export async function advanceOnboarding(formData: FormData) {
   const host = await getCurrentHost();
   if (!host) throw new Error("Unauthorized");

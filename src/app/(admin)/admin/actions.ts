@@ -54,6 +54,32 @@ export async function updateHostSettings(formData: FormData) {
   redirect(`/admin/hosts/${hostId}?saved=settings`);
 }
 
+export async function approveGmailAccess(formData: FormData) {
+  await requireAdmin();
+  const hostId = str(formData, "host_id");
+  if (!hostId) throw new Error("Missing host id");
+
+  const service = createServiceClient();
+  const { error } = await service
+    .from("host_settings")
+    .update({
+      gmail_access_status: "approved",
+      gmail_access_approved_at: new Date().toISOString(),
+    })
+    .eq("host_id", hostId)
+    .eq("gmail_access_status", "pending_review");
+
+  if (error) {
+    redirect(`/admin?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(`/admin/hosts/${hostId}`);
+  const next = str(formData, "next") || "/admin";
+  const separator = next.includes("?") ? "&" : "?";
+  redirect(`${next}${separator}saved=gmail`);
+}
+
 export async function setHostActive(formData: FormData) {
   await requireAdmin();
   const hostId = str(formData, "host_id");

@@ -16,6 +16,7 @@ type BookingStatus =
   | "cancelled";
 
 type GmailConnectionStatus = "active" | "needs_reconnect" | "revoked";
+type GmailAccessStatus = "none" | "pending_review" | "approved" | "connected";
 type IdDocumentType = "aadhaar" | "passport" | "other";
 type MessageTemplateKind = "guest_welcome" | "caretaker_notify" | "host_paste_fallback";
 type MessageLanguage = "en" | "hi";
@@ -102,6 +103,10 @@ export type Database = {
           whatsapp_test_sent_at: string | null;
           whatsapp_verified_at: string | null;
           checkin_link_confirmed_at: string | null;
+          gmail_requested_email: string | null;
+          gmail_access_status: GmailAccessStatus;
+          gmail_access_requested_at: string | null;
+          gmail_access_approved_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -118,6 +123,10 @@ export type Database = {
           whatsapp_test_sent_at?: string | null;
           whatsapp_verified_at?: string | null;
           checkin_link_confirmed_at?: string | null;
+          gmail_requested_email?: string | null;
+          gmail_access_status?: GmailAccessStatus;
+          gmail_access_requested_at?: string | null;
+          gmail_access_approved_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -134,6 +143,10 @@ export type Database = {
           whatsapp_test_sent_at?: string | null;
           whatsapp_verified_at?: string | null;
           checkin_link_confirmed_at?: string | null;
+          gmail_requested_email?: string | null;
+          gmail_access_status?: GmailAccessStatus;
+          gmail_access_requested_at?: string | null;
+          gmail_access_approved_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

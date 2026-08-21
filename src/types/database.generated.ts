@@ -295,6 +295,10 @@ export type Database = {
           updated_at: string
           whatsapp_phone_number_id: string | null
           whatsapp_waba_id: string | null
+          gmail_requested_email: string | null
+          gmail_access_status: Database["public"]["Enums"]["gmail_access_status"]
+          gmail_access_requested_at: string | null
+          gmail_access_approved_at: string | null
         }
         Insert: {
           created_at?: string
@@ -308,6 +312,10 @@ export type Database = {
           updated_at?: string
           whatsapp_phone_number_id?: string | null
           whatsapp_waba_id?: string | null
+          gmail_requested_email?: string | null
+          gmail_access_status?: Database["public"]["Enums"]["gmail_access_status"]
+          gmail_access_requested_at?: string | null
+          gmail_access_approved_at?: string | null
         }
         Update: {
           created_at?: string
@@ -321,6 +329,10 @@ export type Database = {
           updated_at?: string
           whatsapp_phone_number_id?: string | null
           whatsapp_waba_id?: string | null
+          gmail_requested_email?: string | null
+          gmail_access_status?: Database["public"]["Enums"]["gmail_access_status"]
+          gmail_access_requested_at?: string | null
+          gmail_access_approved_at?: string | null
         }
         Relationships: [
           {
@@ -550,6 +562,7 @@ export type Database = {
         | "completed"
         | "failed"
         | "cancelled"
+      gmail_access_status: "none" | "pending_review" | "approved" | "connected"
       gmail_connection_status: "active" | "needs_reconnect" | "revoked"
       id_document_type: "aadhaar" | "passport" | "other"
       message_channel: "whatsapp" | "sms"
@@ -1152,6 +1165,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
+      gmail_access_status: ["none", "pending_review", "approved", "connected"],
       gmail_connection_status: ["active", "needs_reconnect", "revoked"],
       id_document_type: ["aadhaar", "passport", "other"],
       message_channel: ["whatsapp", "sms"],

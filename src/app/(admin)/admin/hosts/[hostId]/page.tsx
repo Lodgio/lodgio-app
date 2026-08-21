@@ -9,6 +9,7 @@ import {
   updateHostSettings,
   setHostActive,
   deleteHost,
+  approveGmailAccess,
 } from "@/app/(admin)/admin/actions";
 import { SubmitButton } from "@/components/submit-button";
 
@@ -17,6 +18,7 @@ const savedMessages: Record<string, string> = {
   settings: "Settings updated.",
   activated: "Host activated.",
   deactivated: "Host deactivated.",
+  gmail: "Gmail access approved.",
 };
 
 export default async function AdminHostDetailPage({
@@ -83,6 +85,13 @@ export default async function AdminHostDetailPage({
               </dd>
             </div>
             <div>
+              <dt className="text-zinc-500">Gmail access</dt>
+              <dd className="font-medium">
+                {settings?.gmail_access_status ?? "none"}
+                {settings?.gmail_requested_email ? ` · ${settings.gmail_requested_email}` : ""}
+              </dd>
+            </div>
+            <div>
               <dt className="text-zinc-500">Joined</dt>
               <dd className="font-medium">{new Date(host.created_at).toLocaleString()}</dd>
             </div>
@@ -92,6 +101,22 @@ export default async function AdminHostDetailPage({
             </div>
           </dl>
         </Card>
+
+        {settings?.gmail_access_status === "pending_review" ? (
+          <Card title="Gmail access request">
+            <p className="mb-3 text-sm text-zinc-600">
+              Add <strong>{settings.gmail_requested_email}</strong> in Google Cloud → OAuth consent
+              screen → Test users, then approve.
+            </p>
+            <form action={approveGmailAccess}>
+              <input type="hidden" name="host_id" value={host.id} />
+              <input type="hidden" name="next" value={`/admin/hosts/${host.id}`} />
+              <SubmitButton className="btn-primary" pendingLabel="Approving…">
+                Approve Gmail access
+              </SubmitButton>
+            </form>
+          </Card>
+        ) : null}
 
         <Card title="Profile">
           <form action={updateHost} className="space-y-3">

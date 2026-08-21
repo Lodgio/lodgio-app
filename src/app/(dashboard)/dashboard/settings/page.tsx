@@ -12,6 +12,7 @@ import { isPhase12Demo } from "@/lib/demo";
 import { isWhatsAppEnabled } from "@/lib/features";
 import { SubmitButton } from "@/components/submit-button";
 import { scopesIncludeDriveFile, spreadsheetUrl } from "@/services/sheets/sheets-links";
+import { GmailAccessPanel } from "@/components/gmail-access-panel";
 
 export default async function SettingsPage({
   searchParams,
@@ -103,22 +104,14 @@ export default async function SettingsPage({
         </Card>
 
         <Card title="Gmail">
-          {gmail ? (
-            <div className="space-y-2 text-sm">
-              <div>{gmail.email_address}</div>
-              <StatusBadge status={gmail.status} />
-              {gmail.status === "needs_reconnect" ? (
-                <a href="/api/auth/gmail" className="btn-primary mt-2 inline-block">
-                  Reconnect Gmail
-                </a>
-              ) : null}
-            </div>
-          ) : (
-            <a href="/api/auth/gmail" className="btn-primary inline-block">
-              Connect Gmail
-            </a>
-          )}
-          {gmail ? (
+          <GmailAccessPanel
+            gmailStatus={gmail?.status ?? null}
+            gmailEmail={gmail?.email_address ?? null}
+            accessStatus={settings?.gmail_access_status ?? "none"}
+            requestedEmail={settings?.gmail_requested_email ?? null}
+            variant="settings"
+          />
+          {gmail?.status === "active" ? (
             <form action={revokeGmailConnection} className="mt-3">
               <SubmitButton className="btn-secondary" pendingLabel="Revoking…">
                 Revoke connection

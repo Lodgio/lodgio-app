@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Card, StatusBadge } from "@/components/dashboard-shell";
+import { Card } from "@/components/dashboard-shell";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
 import { advanceOnboarding, createProperty, createCaretaker } from "@/app/(dashboard)/dashboard/actions";
+import { GmailAccessPanel } from "@/components/gmail-access-panel";
 import { isPhase12Demo } from "@/lib/demo";
 import {
   getNextOnboardingStepAfterCaretaker,
@@ -77,47 +78,52 @@ export default async function OnboardingPage({
 
         {effectiveStep === 1 && (
           <Card title={phase12 ? "Connect Gmail" : "1. Connect Gmail"}>
+            {params.gmail === "requested" ? (
+              <p className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                Inbox submitted. An admin will allow it, then you can connect.
+              </p>
+            ) : null}
+            {params.gmail === "denied" ? (
+              <p className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                Google blocked this inbox because it is not on the test-user list yet. Wait for
+                admin approval, then try Connect again.
+              </p>
+            ) : null}
+            {errorBanner}
             {phase12 ? (
               <p className="mb-3 text-sm text-zinc-600">
                 Link the inbox that receives Airbnb confirmation emails. Lodgio will parse booking
                 details and show them under Bookings.
               </p>
-            ) : null}
-            {gmail?.status === "active" ? (
-              <div className="space-y-2 text-sm">
-                <p>Connected as {gmail.email_address}</p>
-                <StatusBadge status={gmail.status} />
-              </div>
-            ) : gmail?.status === "needs_reconnect" ? (
-              <p className="text-sm text-red-700">Gmail needs reconnect.</p>
             ) : (
-              <p className="text-sm text-zinc-600">Connect Gmail to ingest Airbnb booking emails.</p>
+              <p className="mb-3 text-sm text-zinc-600">
+                Connect the inbox that receives Airbnb confirmation emails so bookings appear
+                automatically.
+              </p>
             )}
-            <div className="mt-4 flex flex-col items-start gap-3">
-              {gmail?.status === "active" ? (
-                <>
-                  {phase12 ? (
-                    <Link href="/dashboard/bookings" className="btn-primary inline-block">
-                      Go to Bookings
-                    </Link>
-                  ) : (
-                    <form action={advanceOnboarding}>
-                      <input type="hidden" name="step" value="2" />
-                      <SubmitButton className="btn-primary" pendingLabel="Continuing…">
-                        Continue
-                      </SubmitButton>
-                    </form>
-                  )}
-                  <a href="/api/auth/gmail" className="text-sm text-zinc-500 underline">
-                    Use another account
-                  </a>
-                </>
-              ) : (
-                <a href="/api/auth/gmail" className="btn-primary">
-                  {gmail?.status === "needs_reconnect" ? "Reconnect Gmail" : "Connect Gmail"}
-                </a>
-              )}
-            </div>
+            <GmailAccessPanel
+              gmailStatus={gmail?.status ?? null}
+              gmailEmail={gmail?.email_address ?? null}
+              accessStatus={settings?.gmail_access_status ?? "none"}
+              requestedEmail={settings?.gmail_requested_email ?? null}
+              variant="onboarding"
+            />
+            {gmail?.status === "active" ? (
+              <div className="mt-4">
+                {phase12 ? (
+                  <Link href="/dashboard/bookings" className="btn-primary inline-block">
+                    Go to Bookings
+                  </Link>
+                ) : (
+                  <form action={advanceOnboarding}>
+                    <input type="hidden" name="step" value="2" />
+                    <SubmitButton className="btn-primary" pendingLabel="Continuing…">
+                      Continue
+                    </SubmitButton>
+                  </form>
+                )}
+              </div>
+            ) : null}
           </Card>
         )}
 

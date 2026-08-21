@@ -29,10 +29,13 @@ export async function GET(request: Request) {
   const state = stateRaw ? decodeOAuthState(stateRaw) : null;
 
   if (error || !code || !state) {
+    if (state?.purpose !== "sheets" && error === "access_denied") {
+      return NextResponse.redirect(`${base}/dashboard/onboarding?step=1&gmail=denied`);
+    }
     const dest =
       state?.purpose === "sheets"
         ? `${base}/dashboard/settings?sheets=error`
-        : `${base}/dashboard/settings?gmail=error`;
+        : `${base}/dashboard/onboarding?step=1&error=${encodeURIComponent("Gmail connection failed")}`;
     return NextResponse.redirect(dest);
   }
 
@@ -100,7 +103,12 @@ export async function GET(request: Request) {
 
       await service
         .from("host_settings")
-        .update({ onboarding_step: 2 })
+        .update({
+          onboarding_step: 2,
+          gmail_access_status: "connected",
+          gmail_requested_email: exchanged.emailAddress,
+          gmail_access_approved_at: new Date().toISOString(),
+        })
         .eq("host_id", host.id);
 
       return NextResponse.redirect(
@@ -157,7 +165,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       state.purpose === "sheets"
         ? `${base}/dashboard/settings?sheets=error`
-        : `${base}/dashboard/settings?gmail=error`
+        : `${base}/dashboard/onboarding?step=1&error=${encodeURIComponent("Gmail connection failed")}`
     );
   }
 }

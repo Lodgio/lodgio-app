@@ -4,6 +4,7 @@ import { getCurrentHost } from "@/lib/host";
 import { isPhase12Demo } from "@/lib/demo";
 import { getHostSetupWarnings } from "@/services/booking/property-booking-service";
 import { spreadsheetUrl } from "@/services/sheets/sheets-links";
+import { GmailAccessPanel } from "@/components/gmail-access-panel";
 import Link from "next/link";
 
 export default async function DashboardPage({
@@ -46,7 +47,9 @@ export default async function DashboardPage({
     supabase.from("gmail_connections").select("status, email_address, last_synced_at").maybeSingle(),
     supabase
       .from("host_settings")
-      .select("sheets_export_enabled, sheets_spreadsheet_id")
+      .select(
+        "sheets_export_enabled, sheets_spreadsheet_id, gmail_access_status, gmail_requested_email"
+      )
       .maybeSingle(),
   ]);
 
@@ -97,39 +100,18 @@ export default async function DashboardPage({
         ) : null}
 
         <Card title="Gmail connection">
-          {gmail?.status === "active" ? (
-            <div className="space-y-2 text-sm">
-              <p>
-                Connected as <strong>{gmail.email_address}</strong>
-              </p>
-              <StatusBadge status={gmail.status} />
-              {gmail.last_synced_at ? (
-                <p className="text-zinc-500">
-                  Last synced: {new Date(gmail.last_synced_at).toLocaleString()}
-                </p>
-              ) : (
-                <p className="text-zinc-500">
-                  Not synced yet — new confirmation emails are imported automatically.
-                </p>
-              )}
-            </div>
-          ) : gmail?.status === "needs_reconnect" ? (
-            <div className="space-y-2 text-sm">
-              <p className="text-red-700">Your Gmail token expired. Reconnect to resume parsing.</p>
-              <a href="/api/auth/gmail" className="btn-primary inline-block">
-                Reconnect Gmail
-              </a>
-            </div>
-          ) : (
-            <div className="space-y-2 text-sm">
-              <p className="text-zinc-600">
-                Connect the inbox that receives Airbnb confirmation emails.
-              </p>
-              <a href="/api/auth/gmail" className="btn-primary inline-block">
-                Connect Gmail
-              </a>
-            </div>
-          )}
+          <GmailAccessPanel
+            gmailStatus={gmail?.status ?? null}
+            gmailEmail={gmail?.email_address ?? null}
+            accessStatus={settings?.gmail_access_status ?? "none"}
+            requestedEmail={settings?.gmail_requested_email ?? null}
+            variant="overview"
+          />
+          {gmail?.status === "active" && gmail.last_synced_at ? (
+            <p className="mt-2 text-sm text-zinc-500">
+              Last synced: {new Date(gmail.last_synced_at).toLocaleString()}
+            </p>
+          ) : null}
         </Card>
 
         <Card title="Status">

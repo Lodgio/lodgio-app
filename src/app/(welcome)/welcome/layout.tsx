@@ -20,7 +20,7 @@ export default async function WelcomeLayout({ children }: { children: React.Reac
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--lodgio-cream)] px-4 py-10 text-zinc-900">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-4xl">
         <div className="mb-6 text-center">
           <div className="flex justify-center">
             <LodgioLogo href="https://lodgio.in" />

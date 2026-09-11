@@ -1,0 +1,100 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
+
+const steps = [
+  {
+    title: "Open your Airbnb Inbox",
+    detail: "Go to Messages, then open the menu next to All messages.",
+    src: "/welcome/airbnb/01-inbox-menu.png",
+    alt: "Airbnb Inbox with the menu next to All messages",
+  },
+  {
+    title: "Open Scheduled messages",
+    detail: "Airbnb may also list this under Settings as Quick replies.",
+    src: "/welcome/airbnb/02-scheduled-messages.png",
+    alt: "Airbnb inbox menu with Scheduled messages highlighted",
+  },
+  {
+    title: "Start a new automatic message",
+    detail: "Click New message to add a template for new bookings.",
+    src: "/welcome/airbnb/03-new-message.png",
+    alt: "Airbnb Scheduled messages screen with New message",
+  },
+  {
+    title: "Paste your Lodgio check-in link",
+    detail: "Name the template for yourself, then paste the link in the message.",
+    src: "/welcome/airbnb/04-compose.png",
+    alt: "Airbnb create scheduled message form",
+  },
+  {
+    title: "Send it when a booking is confirmed",
+    detail: "Set the schedule to Booking confirmed, choose your listing, then save.",
+    src: "/welcome/airbnb/05-booking-confirmed.png",
+    alt: "Airbnb scheduling options with Booking confirmed selected",
+  },
+] as const;
+
+export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
+  const [active, setActive] = useState(0);
+  const current = steps[active];
+
+  return (
+    <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)]">
+      <ol className="order-1 space-y-2">
+        {steps.map((step, index) => {
+          const selected = index === active;
+          return (
+            <li key={step.src}>
+              <button
+                type="button"
+                onMouseEnter={() => setActive(index)}
+                onFocus={() => setActive(index)}
+                onClick={() => setActive(index)}
+                className={`w-full rounded-xl border px-3 py-2.5 text-left transition ${
+                  selected
+                    ? "border-[var(--lodgio-gold)] bg-[var(--lodgio-cream)]"
+                    : "border-transparent hover:border-zinc-200 hover:bg-zinc-50"
+                }`}
+              >
+                <span className="flex gap-3">
+                  <span
+                    className={`mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                      selected
+                        ? "bg-[var(--lodgio-ink)] text-white"
+                        : "bg-zinc-100 text-zinc-500"
+                    }`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span>
+                    <span className="block text-sm font-medium text-[var(--lodgio-olive)]">
+                      {step.title}
+                    </span>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-zinc-500">
+                      {step.detail}
+                    </span>
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <figure className="order-2 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 lg:sticky lg:top-6 lg:row-span-2 lg:min-h-[20rem]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={current.src}
+          alt={current.alt}
+          className="mx-auto max-h-[28rem] w-full object-contain object-top p-3"
+        />
+        <figcaption className="border-t border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-500">
+          Step {active + 1}: {current.title}. Airbnb’s screens may look newer.
+        </figcaption>
+      </figure>
+
+      {children ? <div className="order-3">{children}</div> : null}
+    </div>
+  );
+}

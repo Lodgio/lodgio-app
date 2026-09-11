@@ -26,7 +26,7 @@ export default async function WelcomeStep1({
   const messageSent = Boolean(settings?.whatsapp_test_sent_at) || params.sent === "1";
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <div className="mx-auto max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Step 1 of 2</p>
       <h2 className="mt-1 text-lg font-semibold">Verify your WhatsApp number</h2>
       <p className="mt-2 text-sm text-zinc-600">

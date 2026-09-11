@@ -3,15 +3,8 @@ import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { CopyButton } from "@/components/copy-button";
 import { SubmitButton } from "@/components/submit-button";
+import { AirbnbPasteGuide } from "@/components/airbnb-paste-guide";
 import { confirmCheckinLink } from "@/app/(welcome)/welcome/actions";
-
-const airbnbSteps = [
-  "Open Airbnb and go to the listing you host.",
-  "Open your host messaging / scheduled messages for that listing.",
-  "Add or edit the automatic message that goes out after a booking is confirmed.",
-  "Paste the Lodgio check-in link in that message so every new guest gets the form.",
-  "Save the message. You can copy the same link again later from Settings.",
-];
 
 export default async function WelcomeStep2() {
   const host = await getCurrentHost();
@@ -33,18 +26,14 @@ export default async function WelcomeStep2() {
         <CopyButton value={formLink} />
       </div>
 
-      <ol className="mt-6 list-decimal space-y-2 pl-5 text-sm text-zinc-700">
-        {airbnbSteps.map((step) => (
-          <li key={step}>{step}</li>
-        ))}
-      </ol>
-
-      <form action={confirmCheckinLink} className="mt-6 border-t border-zinc-100 pt-5">
-        <SubmitButton className="btn-primary w-full" pendingLabel="Continuing…">
-          Okay, I&apos;ve pasted it
-        </SubmitButton>
-      </form>
-      <p className="mt-2 text-xs text-zinc-500">You can find this link again later in Settings.</p>
+      <AirbnbPasteGuide>
+        <form action={confirmCheckinLink} className="mt-6 border-t border-zinc-100 pt-5">
+          <SubmitButton className="btn-primary w-full" pendingLabel="Continuing…">
+            Okay, I&apos;ve pasted it
+          </SubmitButton>
+        </form>
+        <p className="mt-2 text-xs text-zinc-500">You can find this link again later in Settings.</p>
+      </AirbnbPasteGuide>
     </div>
   );
 }

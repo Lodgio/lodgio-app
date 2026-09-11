@@ -249,17 +249,58 @@ export default async function OnboardingPage({
     </Card>
   );
 
-  const doneCard = (
-    <Card title="4. All set">
-      <p className="text-sm text-zinc-600">
-        Lodgio will ingest bookings from Gmail and match guest check-in forms
-        {whatsappEnabled ? ", send guest messages," : ""} and export to Sheets.
-      </p>
-      <Link href="/dashboard" className="btn-primary mt-4 inline-block">
-        Go to dashboard
-      </Link>
-    </Card>
-  );
+  const gmailReady = gmail?.status === "active";
+  const setupGaps = [
+    !gmailReady
+      ? {
+          step: 1,
+          title: "Connect Gmail",
+          detail: "Enter the inbox that receives Airbnb confirmation emails, then connect it.",
+        }
+      : null,
+    !hasProperties
+      ? { step: 2, title: "Add a property", detail: "Add at least one Airbnb listing." }
+      : null,
+    !hasCaretakers
+      ? { step: 3, title: "Add a caretaker", detail: "Add the on-site contact for your listing." }
+      : null,
+  ].filter((item): item is { step: number; title: string; detail: string } => item !== null);
+
+  const doneCard =
+    setupGaps.length === 0 ? (
+      <Card title="4. All set">
+        <p className="text-sm text-zinc-600">
+          Lodgio will ingest bookings from Gmail and match guest check-in forms
+          {whatsappEnabled ? ", send guest messages," : ""} and export to Sheets.
+        </p>
+        <Link href="/dashboard" className="btn-primary mt-4 inline-block">
+          Go to dashboard
+        </Link>
+      </Card>
+    ) : (
+      <Card title="4. Finish setup">
+        <p className="mb-4 text-sm text-zinc-600">
+          This step is not done yet — a few things are still missing.
+        </p>
+        <ul className="space-y-2">
+          {setupGaps.map((item) => (
+            <li
+              key={item.step}
+              className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm"
+            >
+              <p className="font-medium text-amber-950">{item.title}</p>
+              <p className="text-amber-900">{item.detail}</p>
+              <Link
+                href={`/dashboard/onboarding?step=${item.step}`}
+                className="mt-2 inline-block text-sm font-medium text-blue-600"
+              >
+                Go to step {item.step}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    );
 
   if (phase12) {
     return <div className="space-y-4">{gmailCard}</div>;

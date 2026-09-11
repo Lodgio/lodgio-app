@@ -98,7 +98,9 @@ export default async function OnboardingPage({
         requestedEmail={settings?.gmail_requested_email ?? null}
         variant="onboarding"
       />
-      {gmail?.status === "active" ? (
+      {gmail?.status === "active" ||
+      settings?.gmail_access_status === "approved" ||
+      settings?.gmail_access_status === "connected" ? (
         <div className="mt-4">
           {phase12 ? (
             <Link href="/dashboard/bookings" className="btn-primary inline-block">
@@ -107,8 +109,11 @@ export default async function OnboardingPage({
           ) : (
             <form action={advanceOnboarding}>
               <input type="hidden" name="step" value="2" />
-              <SubmitButton className="btn-primary" pendingLabel="Continuing…">
-                Continue
+              <SubmitButton
+                className={gmail?.status === "active" ? "btn-primary" : "btn-secondary"}
+                pendingLabel="Continuing…"
+              >
+                Continue to properties →
               </SubmitButton>
             </form>
           )}

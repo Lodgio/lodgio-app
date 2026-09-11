@@ -85,10 +85,11 @@ export function GmailAccessPanel({
     return (
       <div className="space-y-3 text-sm">
         <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-900">
-          Ready — connect{requestedEmail ? ` ${requestedEmail}` : " this Gmail"} to continue.
+          Inbox approved{requestedEmail ? ` for ${requestedEmail}` : ""}. Connect it to continue
+          to the next step.
         </p>
         <a href="/api/auth/gmail" className="btn-primary inline-block">
-          Connect Gmail
+          {variant === "onboarding" ? "Connect and continue" : "Connect Gmail"}
         </a>
       </div>
     );

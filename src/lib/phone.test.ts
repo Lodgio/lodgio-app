@@ -13,9 +13,9 @@ describe("normalizeInPhone", () => {
     expect(normalizeInPhone("0123456789")).toBeNull();
   });
 
-  it("keeps the Polish QA WhatsApp number as +48", () => {
+  it("maps the 10-char QA alias to the Polish WhatsApp number", () => {
+    expect(normalizeInPhone("-453380133")).toBe("+48453380133");
     expect(normalizeInPhone("+48453380133")).toBe("+48453380133");
-    expect(normalizeInPhone("48453380133")).toBe("+48453380133");
     expect(normalizeInPhone("453380133")).toBe("+48453380133");
   });
 });
@@ -26,6 +26,6 @@ describe("indianMobileLocal", () => {
   });
 
   it("does not rewrite the Polish QA number as Indian", () => {
-    expect(indianMobileLocal("+48453380133")).toBe("48453380133");
+    expect(indianMobileLocal("+48453380133")).toBe("-453380133");
   });
 });

@@ -32,6 +32,10 @@ textarea.field {
   @apply rounded-xl;
 }
 
+select.field {
+  @apply pr-11;
+}
+
 .btn-primary {
   @apply inline-flex items-center justify-center rounded-full bg-[var(--lodgio-ink)] px-7 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
 }

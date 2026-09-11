@@ -86,7 +86,7 @@ export default async function GuestCheckinPage({
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center bg-[var(--lodgio-cream)] px-4 py-8">
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <LodgioLogo />
+        <LodgioLogo href="https://lodgio.in" />
         <p className="mt-4 text-xs font-medium uppercase tracking-wide text-zinc-500">{hostName}</p>
         <h1 className="mt-1 text-xl font-semibold text-[var(--lodgio-olive)]">Guest check-in</h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">

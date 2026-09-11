@@ -12,7 +12,7 @@ export default async function ResetPasswordPage({
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 bg-[var(--lodgio-cream)]">
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <LodgioLogo href="/" />
+        <LodgioLogo href="https://lodgio.in" />
         <h1 className="mt-4 text-xl font-semibold text-[var(--lodgio-olive)]">Set a new password</h1>
         {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
         <form action={updatePassword} className="mt-6 space-y-3">

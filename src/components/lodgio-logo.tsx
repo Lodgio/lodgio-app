@@ -20,8 +20,16 @@ export function LodgioLogo({
     <span className="inline-flex shrink-0 self-start">{image}</span>
   );
   if (!href) return mark;
+  const className = "inline-flex shrink-0 self-start items-center";
+  if (href.startsWith("http")) {
+    return (
+      <a href={href} className={className}>
+        {image}
+      </a>
+    );
+  }
   return (
-    <Link href={href} className="inline-flex shrink-0 self-start items-center">
+    <Link href={href} className={className}>
       {image}
     </Link>
   );

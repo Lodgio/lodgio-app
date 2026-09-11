@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--lodgio-cream)]">
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-16">
-        <LodgioLogo size="lg" />
+        <LodgioLogo href="https://lodgio.in" size="lg" />
         <h1 className="mt-8 text-4xl font-semibold tracking-tight text-[var(--lodgio-olive)]">
           Hospitality automation that actually saves time.
         </h1>
@@ -30,12 +30,12 @@ export default function Home() {
             Let Lodgio handle the repetitive work.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/signup" className="btn-accent">
-              Get started
-            </Link>
-            <Link href="/login" className="btn-secondary">
-              Sign in
-            </Link>
+            <a href="https://lodgio.in/contact/" className="btn-secondary">
+              Book a Demo
+            </a>
+            <a href="https://lodgio.in/contact/" className="btn-secondary">
+              Contact Sales
+            </a>
           </div>
         </div>
       </footer>

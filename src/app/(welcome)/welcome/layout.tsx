@@ -23,7 +23,7 @@ export default async function WelcomeLayout({ children }: { children: React.Reac
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <div className="flex justify-center">
-            <LodgioLogo />
+            <LodgioLogo href="https://lodgio.in" />
           </div>
           <h1 className="mt-4 text-2xl font-semibold text-[var(--lodgio-olive)]">
             Just a couple more steps

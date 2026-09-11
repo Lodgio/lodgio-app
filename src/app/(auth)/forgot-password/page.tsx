@@ -13,7 +13,7 @@ export default async function ForgotPasswordPage({
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 bg-[var(--lodgio-cream)]">
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <LodgioLogo href="/" />
+        <LodgioLogo href="https://lodgio.in" />
         <h1 className="mt-4 text-xl font-semibold text-[var(--lodgio-olive)]">Forgot password</h1>
         <p className="mt-2 text-sm text-zinc-600">
           We&apos;ll email a reset link if this address has an account. Until email is configured,

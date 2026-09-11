@@ -7,14 +7,21 @@ export function LodgioLogo({
   href?: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const height = size === "sm" ? "h-7" : size === "lg" ? "h-12" : "h-9";
+  const height = size === "sm" ? "h-7" : size === "lg" ? "h-14" : "h-9";
   const image = (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src="/lodgio-logo.png" alt="Lodgio" className={`${height} w-auto`} />
+    <img
+      src="/lodgio-logo.png"
+      alt="Lodgio"
+      className={`${height} w-auto max-w-[220px] object-contain object-left`}
+    />
   );
-  if (!href) return image;
+  const mark = (
+    <span className="inline-flex shrink-0 self-start">{image}</span>
+  );
+  if (!href) return mark;
   return (
-    <Link href={href} className="inline-flex items-center">
+    <Link href={href} className="inline-flex shrink-0 self-start items-center">
       {image}
     </Link>
   );

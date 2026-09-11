@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lodgio",
   description: "Automated guest communication for Airbnb hosts",
+  icons: {
+    icon: "/lodgio-icon.png",
+    apple: "/lodgio-icon.png",
+  },
 };
 
 export default function RootLayout({

@@ -23,11 +23,13 @@ export default function Home() {
         </div>
       </div>
       <footer className="section-ink">
-        <div className="mx-auto flex max-w-3xl flex-col items-start gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-lg font-medium text-white">
-            Spend more time hosting. Let Lodgio handle the repetitive work.
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+          <p className="text-2xl font-medium leading-snug text-white sm:text-3xl">
+            Spend more time hosting.
+            <br />
+            Let Lodgio handle the repetitive work.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/signup" className="btn-accent">
               Get started
             </Link>

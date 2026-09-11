@@ -16,7 +16,10 @@ export const metadata: Metadata = {
   title: "Lodgio",
   description: "Automated guest communication for Airbnb hosts",
   icons: {
-    icon: "/lodgio-icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/lodgio-icon.png?v=2", type: "image/png", sizes: "490x490" },
+    ],
     apple: "/lodgio-icon.png",
   },
 };

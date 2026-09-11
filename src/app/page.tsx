@@ -4,7 +4,7 @@ import { LodgioLogo } from "@/components/lodgio-logo";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--lodgio-cream)]">
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-16">
+      <div className="mx-auto flex min-h-[90vh] w-full max-w-3xl flex-col justify-center px-4 py-16">
         <LodgioLogo href="https://lodgio.in" size="lg" />
         <h1 className="mt-8 text-4xl font-semibold tracking-tight text-[var(--lodgio-olive)]">
           Hospitality automation that actually saves time.

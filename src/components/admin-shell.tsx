@@ -14,14 +14,24 @@ export async function AdminShell({
   adminEmail: string;
 }) {
   const service = createServiceClient();
-  const { count } = await service
-    .from("host_settings")
-    .select("*", { count: "exact", head: true })
-    .eq("gmail_access_status", "pending_review");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const [{ count }, ops] = await Promise.all([
+    service
+      .from("host_settings")
+      .select("*", { count: "exact", head: true })
+      .eq("gmail_access_status", "pending_review"),
+    service
+      .from("ops_events")
+      .select("*", { count: "exact", head: true })
+      .eq("severity", "critical")
+      .gte("created_at", since),
+  ]);
   const pending = count ?? 0;
+  const opsCount = ops.error ? 0 : (ops.count ?? 0);
 
   const adminNav = [
     { href: "/admin", label: "Hosts", badge: pending },
+    { href: "/admin/ops", label: "Activity", badge: opsCount ?? 0 },
     { href: "/admin/admins", label: "Admins", badge: 0 },
   ];
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { env } from "@/lib/env";
 import { getSmsClient } from "@/integrations";
+import { recordOpsEvent } from "@/lib/ops";
 
 function verifySignature(payload: string, signature: string | null): boolean {
   if (!signature || !env.metaAppSecret) return false;
@@ -95,6 +96,24 @@ export async function POST(request: Request) {
             ...(mapped === "failed" && errorText ? { error: errorText } : {}),
           })
           .eq("id", logEntry.id);
+
+        if (mapped === "failed") {
+          const who = logEntry.recipient_type === "caretaker" ? "Caretaker" : "Guest";
+          await recordOpsEvent({
+            severity: "critical",
+            kind: "wa_delivery_failed",
+            title: `${who} WhatsApp not delivered`,
+            detail: errorText ?? "Meta marked the message as failed after accept",
+            hostId: logEntry.host_id,
+            bookingId: logEntry.booking_id,
+            dedupeKey: `wa_delivery_failed:${logEntry.id}`,
+            payload: {
+              recipient: logEntry.recipient_type,
+              template: logEntry.template_kind,
+              error: errorText,
+            },
+          });
+        }
 
         if (
           mapped === "failed" &&

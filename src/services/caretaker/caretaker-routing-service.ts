@@ -5,6 +5,7 @@ import {
   getTemplateConfig,
 } from "@/integrations/whatsapp/templates";
 import type { Tables } from "@/types/database";
+import { recordOpsEvent } from "@/lib/ops";
 
 export async function notifyCaretaker(bookingId: string) {
   const supabase = createServiceClient();
@@ -14,8 +15,19 @@ export async function notifyCaretaker(bookingId: string) {
     .eq("id", bookingId)
     .single();
 
-  if (!booking?.property_id) {
+  if (!booking) return { skipped: true, reason: "no_booking" };
+  if (!booking.property_id) {
     console.warn("caretaker_skip_no_property", { bookingId });
+    await recordOpsEvent({
+      severity: "warning",
+      kind: "caretaker_skipped",
+      title: "Caretaker WhatsApp skipped — no property",
+      hostId: booking.host_id,
+      bookingId,
+      dedupeKey: `caretaker_skipped:${bookingId}:no_property`,
+      email: true,
+      payload: { reason: "no_property" },
+    });
     return { skipped: true, reason: "no_property" };
   }
 
@@ -34,6 +46,16 @@ export async function notifyCaretaker(bookingId: string) {
 
   if (!mapping?.caretaker_id) {
     console.warn("caretaker_skip_unassigned", { bookingId, propertyId: booking.property_id });
+    await recordOpsEvent({
+      severity: "warning",
+      kind: "caretaker_skipped",
+      title: "Caretaker WhatsApp skipped — none assigned",
+      hostId: booking.host_id,
+      bookingId,
+      dedupeKey: `caretaker_skipped:${booking.property_id}:unassigned`,
+      email: true,
+      payload: { reason: "no_caretaker", propertyId: booking.property_id },
+    });
     return { skipped: true, reason: "no_caretaker" };
   }
 
@@ -103,6 +125,19 @@ export async function notifyCaretaker(bookingId: string) {
     status: result.success ? "sent" : "failed",
     error: result.error ?? null,
   });
+
+  if (!result.success) {
+    await recordOpsEvent({
+      severity: "critical",
+      kind: "wa_send_failed",
+      title: "Caretaker WhatsApp failed",
+      detail: result.error ?? "Meta rejected the caretaker template",
+      hostId: booking.host_id,
+      bookingId,
+      dedupeKey: `wa_send_failed:${bookingId}:caretaker`,
+      payload: { recipient: "caretaker", to: caretaker.phone, error: result.error ?? null },
+    });
+  }
 
   return { skipped: false, success: result.success };
 }

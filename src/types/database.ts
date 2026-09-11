@@ -497,6 +497,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      ops_events: {
+        Row: {
+          id: string;
+          created_at: string;
+          severity: "info" | "warning" | "critical";
+          kind: string;
+          host_id: string | null;
+          booking_id: string | null;
+          dedupe_key: string | null;
+          title: string;
+          detail: string | null;
+          payload: Json;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          severity: "info" | "warning" | "critical";
+          kind: string;
+          host_id?: string | null;
+          booking_id?: string | null;
+          dedupe_key?: string | null;
+          title: string;
+          detail?: string | null;
+          payload?: Json;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          severity?: "info" | "warning" | "critical";
+          kind?: string;
+          host_id?: string | null;
+          booking_id?: string | null;
+          dedupe_key?: string | null;
+          title?: string;
+          detail?: string | null;
+          payload?: Json;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

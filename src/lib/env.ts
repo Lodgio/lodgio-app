@@ -28,6 +28,10 @@ export const env = {
 
   // Email of the first platform admin. On first sign-in this user is auto-added to the admins table.
   adminBootstrapEmail: (process.env.ADMIN_BOOTSTRAP_EMAIL ?? "").trim().toLowerCase(),
+  opsAlertEmail: (process.env.OPS_ALERT_EMAIL ?? process.env.ADMIN_BOOTSTRAP_EMAIL ?? "")
+    .trim()
+    .toLowerCase(),
+  opsAlertFrom: process.env.OPS_ALERT_FROM ?? "Lodgio Alerts <noreply@lodgio.in>",
 
   supabaseUrl: () => required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
   supabasePublishableKey: () =>

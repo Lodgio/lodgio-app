@@ -6,6 +6,7 @@ import { parseAirbnbEmail } from "@/integrations/gmail/parser";
 import { IntegrationError } from "@/integrations/types";
 import { runMatchingForHost } from "@/services/matching/matching-service";
 import { findPropertyFromEmail } from "@/services/booking/property-booking-service";
+import { recordOpsEvent } from "@/lib/ops";
 
 export async function pollAllGmailConnections() {
   const supabase = createServiceClient();
@@ -71,6 +72,20 @@ export async function pollGmailConnection(connectionId: string) {
           checkIn: parsed.checkIn,
           checkOut: parsed.checkOut,
         });
+        await recordOpsEvent({
+          severity: "warning",
+          kind: "gmail_parse_failed",
+          title: "Airbnb email did not parse",
+          detail: `${prepared.subject ?? "No subject"} — ${(parsed.parseIssues ?? []).join(", ") || "missing booking id"}`,
+          hostId: connection.host_id,
+          dedupeKey: `gmail_parse_failed:${connection.host_id}`,
+          email: true,
+          payload: {
+            emailId: email.id,
+            subject: prepared.subject ?? null,
+            issues: parsed.parseIssues ?? [],
+          },
+        });
         continue;
       }
 
@@ -89,6 +104,16 @@ export async function pollGmailConnection(connectionId: string) {
           listingName: parsed.listingName,
           checkIn: parsed.checkIn,
           checkOut: parsed.checkOut,
+        });
+        await recordOpsEvent({
+          severity: "warning",
+          kind: "gmail_parse_failed",
+          title: "Airbnb email missing listing name",
+          detail: prepared.subject ?? parsed.airbnbBookingId,
+          hostId: connection.host_id,
+          dedupeKey: `gmail_parse_failed:${connection.host_id}`,
+          email: true,
+          payload: { emailId: email.id, subject: prepared.subject ?? null },
         });
         continue;
       }
@@ -143,6 +168,15 @@ export async function pollGmailConnection(connectionId: string) {
           .eq("id", existingBooking.id);
         if (error) {
           console.error("booking_reingest_update_failed", parsed.airbnbBookingId, error);
+          await recordOpsEvent({
+            severity: "critical",
+            kind: "booking_ingest_failed",
+            title: "Booking update failed",
+            detail: `${parsed.airbnbBookingId}: ${error.message}`,
+            hostId: connection.host_id,
+            dedupeKey: `booking_ingest_failed:${parsed.airbnbBookingId}`,
+            payload: { airbnbBookingId: parsed.airbnbBookingId, error: error.message },
+          });
         }
       } else {
         const { error } = await supabase.from("bookings").insert({
@@ -155,7 +189,18 @@ export async function pollGmailConnection(connectionId: string) {
         });
 
         if (!error) ingested += 1;
-        else console.error("booking_ingest_insert_failed", parsed.airbnbBookingId, error);
+        else {
+          console.error("booking_ingest_insert_failed", parsed.airbnbBookingId, error);
+          await recordOpsEvent({
+            severity: "critical",
+            kind: "booking_ingest_failed",
+            title: "Booking insert failed",
+            detail: `${parsed.airbnbBookingId}: ${error.message}`,
+            hostId: connection.host_id,
+            dedupeKey: `booking_ingest_failed:${parsed.airbnbBookingId}`,
+            payload: { airbnbBookingId: parsed.airbnbBookingId, error: error.message },
+          });
+        }
       }
     }
 
@@ -178,6 +223,15 @@ export async function pollGmailConnection(connectionId: string) {
         .from("gmail_connections")
         .update({ status: "needs_reconnect" })
         .eq("id", connection.id);
+      await recordOpsEvent({
+        severity: "critical",
+        kind: "gmail_needs_reconnect",
+        title: "Gmail needs reconnect",
+        detail: `${connection.email_address} lost Google access`,
+        hostId: connection.host_id,
+        dedupeKey: `gmail_needs_reconnect:${connection.id}`,
+        payload: { email: connection.email_address },
+      });
     }
     throw error;
   }

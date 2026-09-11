@@ -9,6 +9,7 @@ import { getBookingCaretaker } from "@/services/messaging/message-preview";
 import { getBookingMessagingReadiness } from "@/services/booking/property-booking-service";
 import { exportBookingToSheets } from "@/services/sheets/sheets-export-service";
 import { env } from "@/lib/env";
+import { recordOpsEvent } from "@/lib/ops";
 import type { Tables } from "@/types/database";
 
 async function hasSentMessage(
@@ -134,6 +135,16 @@ export async function processMatchedBooking(bookingId: string) {
         templateKind,
         status: "failed",
         error: result.error,
+      });
+      await recordOpsEvent({
+        severity: "critical",
+        kind: "wa_send_failed",
+        title: "Guest WhatsApp failed",
+        detail: result.error ?? "Meta rejected the guest welcome template",
+        hostId: booking.host_id,
+        bookingId,
+        dedupeKey: `wa_send_failed:${bookingId}:guest`,
+        payload: { recipient: "guest", template: templateKind, error: result.error ?? null },
       });
 
       if (settings?.sms_fallback_enabled) {

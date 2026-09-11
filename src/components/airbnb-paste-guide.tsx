@@ -4,34 +4,34 @@ import { useState, type ReactNode } from "react";
 
 const steps = [
   {
-    title: "Open your Airbnb Inbox",
-    detail: "Go to Messages, then open the menu next to All messages.",
-    src: "/welcome/airbnb/01-inbox-menu.png",
-    alt: "Airbnb Inbox with the menu next to All messages",
+    title: "Open Messages, then settings",
+    detail: "In Airbnb, go to Messages and click the gear next to search.",
+    src: "/welcome/airbnb/01-messages.png",
+    alt: "Airbnb Messages with the settings gear highlighted",
   },
   {
-    title: "Open Scheduled messages",
-    detail: "Airbnb may also list this under Settings as Quick replies.",
-    src: "/welcome/airbnb/02-scheduled-messages.png",
-    alt: "Airbnb inbox menu with Scheduled messages highlighted",
+    title: "Open Manage quick replies",
+    detail: "That’s where Airbnb keeps automatic guest templates.",
+    src: "/welcome/airbnb/02-manage-quick-replies.png",
+    alt: "Airbnb Messaging settings with Manage quick replies highlighted",
   },
   {
-    title: "Start a new automatic message",
-    detail: "Click New message to add a template for new bookings.",
-    src: "/welcome/airbnb/03-new-message.png",
-    alt: "Airbnb Scheduled messages screen with New message",
+    title: "Open Booking confirmation",
+    detail: "Use this template, or create one if you don’t have it yet.",
+    src: "/welcome/airbnb/03-booking-confirmation.png",
+    alt: "Airbnb quick replies list with Booking confirmation highlighted",
   },
   {
     title: "Paste your Lodgio check-in link",
-    detail: "Name the template for yourself, then paste the link in the message.",
-    src: "/welcome/airbnb/04-compose.png",
-    alt: "Airbnb create scheduled message form",
+    detail: "Put the link from above in the message. Keep the Guest first name shortcode.",
+    src: "/welcome/airbnb/04-paste-link.png",
+    alt: "Airbnb template editor with the Lodgio check-in link highlighted",
   },
   {
-    title: "Send it when a booking is confirmed",
-    detail: "Set the schedule to Booking confirmed, choose your listing, then save.",
-    src: "/welcome/airbnb/05-booking-confirmed.png",
-    alt: "Airbnb scheduling options with Booking confirmed selected",
+    title: "Schedule 5 minutes after a guest books",
+    detail: "Edit Scheduled for, choose that option, then Apply and Save. Don’t leave it unscheduled.",
+    src: "/welcome/airbnb/05-schedule.png",
+    alt: "Airbnb schedule dialog with 5 minutes after a guest books selected",
   },
 ] as const;
 
@@ -90,7 +90,7 @@ export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
           className="mx-auto max-h-[28rem] w-full object-contain object-top p-3"
         />
         <figcaption className="border-t border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-500">
-          Step {active + 1}: {current.title}. Airbnb’s screens may look newer.
+          Step {active + 1}: {current.title}
         </figcaption>
       </figure>
 

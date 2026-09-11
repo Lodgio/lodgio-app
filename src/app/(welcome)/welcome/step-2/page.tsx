@@ -17,8 +17,8 @@ export default async function WelcomeStep2() {
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Step 2 of 2</p>
       <h2 className="mt-1 text-lg font-semibold">Add your guest check-in link</h2>
       <p className="mt-2 text-sm text-zinc-600">
-        Paste this link into your Airbnb automatic messages. New guests complete check-in without
-        you sending it by hand.
+        Paste this link into your Airbnb Booking confirmation quick reply. New guests complete
+        check-in without you sending it by hand.
       </p>
 
       <code className="mt-4 block rounded-md bg-zinc-100 p-3 text-sm break-all">{formLink}</code>

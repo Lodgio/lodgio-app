@@ -33,6 +33,34 @@ export async function updateHost(formData: FormData) {
   redirect(`/admin/hosts/${hostId}?saved=profile`);
 }
 
+export async function setHostPassword(formData: FormData) {
+  await requireAdmin();
+  const hostId = str(formData, "host_id");
+  const password = str(formData, "password");
+  if (!hostId || password.length < 8) {
+    redirect(`/admin/hosts/${hostId}?error=${encodeURIComponent("Password must be at least 8 characters")}`);
+  }
+
+  const service = createServiceClient();
+  const { data: host, error: findError } = await service
+    .from("hosts")
+    .select("auth_user_id")
+    .eq("id", hostId)
+    .maybeSingle();
+
+  if (findError || !host) {
+    redirect(`/admin/hosts/${hostId}?error=${encodeURIComponent(findError?.message ?? "Host not found")}`);
+  }
+
+  const { error } = await service.auth.admin.updateUserById(host.auth_user_id, { password });
+  if (error) {
+    redirect(`/admin/hosts/${hostId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath(`/admin/hosts/${hostId}`);
+  redirect(`/admin/hosts/${hostId}?saved=password`);
+}
+
 export async function updateHostSettings(formData: FormData) {
   await requireAdmin();
   const hostId = str(formData, "host_id");

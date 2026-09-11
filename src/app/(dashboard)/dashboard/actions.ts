@@ -11,6 +11,15 @@ import {
 } from "@/services/booking/property-booking-service";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled } from "@/lib/features";
+import { normalizeInPhone } from "@/lib/phone";
+
+function requireInPhone(raw: string, fallbackPath: string) {
+  const phone = normalizeInPhone(raw);
+  if (!phone) {
+    redirect(`${fallbackPath}${fallbackPath.includes("?") ? "&" : "?"}error=${encodeURIComponent("Enter a 10-digit Indian mobile number")}`);
+  }
+  return phone;
+}
 
 export async function updateHostProfile(formData: FormData) {
   const host = await getCurrentHost();
@@ -21,7 +30,9 @@ export async function updateHostProfile(formData: FormData) {
     .from("hosts")
     .update({
       business_name: String(formData.get("business_name") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
+      phone: String(formData.get("phone") ?? "").trim()
+        ? requireInPhone(String(formData.get("phone") ?? ""), "/dashboard/settings")
+        : "",
     })
     .eq("id", host.id);
 
@@ -128,11 +139,11 @@ export async function createProperty(formData: FormData) {
   const onboardingNextStep = formData.get("onboarding_next_step");
   const { error } = await supabase.from("properties").insert({
     host_id: host.id,
-    name: String(formData.get("name") ?? ""),
-    address: String(formData.get("address") ?? ""),
-    location_url: String(formData.get("location_url") ?? ""),
-    check_in_time: String(formData.get("check_in_time") ?? "2:00 PM"),
-    house_rules: String(formData.get("house_rules") ?? "") || null,
+    name: String(formData.get("name") ?? "").trim(),
+    address: String(formData.get("address") ?? "").trim(),
+    location_url: String(formData.get("location_url") ?? "").trim(),
+    check_in_time: String(formData.get("check_in_time") ?? "2:00 PM").trim() || "2:00 PM",
+    house_rules: String(formData.get("house_rules") ?? "").trim() || null,
   });
 
   if (error) {
@@ -173,7 +184,10 @@ export async function createCaretaker(formData: FormData) {
     .insert({
       host_id: host.id,
       name: String(formData.get("name") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
+      phone: requireInPhone(
+        String(formData.get("phone") ?? ""),
+        onboardingNextStep ? "/dashboard/onboarding?step=3" : "/dashboard/caretakers"
+      ),
     })
     .select("id")
     .single();
@@ -211,6 +225,79 @@ export async function createCaretaker(formData: FormData) {
       .eq("host_id", host.id);
     redirect(`/dashboard/onboarding?step=${step}&saved=caretaker`);
   }
+}
+
+export async function updateProperty(formData: FormData) {
+  const host = await getCurrentHost();
+  if (!host) throw new Error("Unauthorized");
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!propertyId) throw new Error("Missing property");
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("properties")
+    .update({
+      name: String(formData.get("name") ?? "").trim(),
+      address: String(formData.get("address") ?? "").trim(),
+      location_url: String(formData.get("location_url") ?? "").trim(),
+      check_in_time: String(formData.get("check_in_time") ?? "2:00 PM").trim() || "2:00 PM",
+      house_rules: String(formData.get("house_rules") ?? "").trim() || null,
+    })
+    .eq("id", propertyId)
+    .eq("host_id", host.id);
+
+  if (error) throw new Error(error.message);
+
+  await remapUnmappedBookingsForHost(host.id);
+  await retryPendingMessagingForHost(host.id);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/bookings");
+  revalidatePath("/dashboard/properties");
+  revalidatePath("/dashboard/onboarding");
+}
+
+export async function updateCaretaker(formData: FormData) {
+  const host = await getCurrentHost();
+  if (!host) throw new Error("Unauthorized");
+
+  const caretakerId = String(formData.get("caretaker_id") ?? "");
+  if (!caretakerId) throw new Error("Missing caretaker");
+
+  const supabase = await createClient();
+  const errorPath = String(formData.get("error_path") ?? "/dashboard/caretakers");
+  const phone = requireInPhone(String(formData.get("phone") ?? ""), errorPath);
+  const { error } = await supabase
+    .from("caretakers")
+    .update({
+      name: String(formData.get("name") ?? "").trim(),
+      phone,
+    })
+    .eq("id", caretakerId)
+    .eq("host_id", host.id);
+
+  if (error) throw new Error(error.message);
+
+  if (formData.has("property_id")) {
+    const propertyId = String(formData.get("property_id") ?? "");
+    await supabase.from("property_caretakers").delete().eq("caretaker_id", caretakerId);
+    if (propertyId) {
+      await supabase.from("property_caretakers").delete().eq("property_id", propertyId);
+      await supabase.from("property_caretakers").insert({
+        property_id: propertyId,
+        caretaker_id: caretakerId,
+      });
+    }
+  }
+
+  await retryPendingMessagingForHost(host.id);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/bookings");
+  revalidatePath("/dashboard/properties");
+  revalidatePath("/dashboard/caretakers");
+  revalidatePath("/dashboard/onboarding");
 }
 
 export async function mapPropertyCaretaker(formData: FormData) {
@@ -281,6 +368,40 @@ export async function advanceOnboarding(formData: FormData) {
     .eq("host_id", host.id);
 
   redirect(`/dashboard/onboarding?step=${step}`);
+}
+
+export async function openGuestDocument(formData: FormData) {
+  const host = await getCurrentHost();
+  if (!host) throw new Error("Unauthorized");
+
+  const rawNext = String(formData.get("next") ?? "/dashboard/bookings");
+  const next = rawNext.startsWith("/dashboard/") ? rawNext : "/dashboard/bookings";
+  const fail = (message: string): never => {
+    redirect(`${next}?error=${encodeURIComponent(message)}`);
+  };
+
+  const submissionId = String(formData.get("submission_id") ?? "");
+  if (!submissionId) return fail("Missing guest ID");
+
+  const service = createServiceClient();
+  const { data: submission } = await service
+    .from("form_submissions")
+    .select("id, host_id, id_document_path")
+    .eq("id", submissionId)
+    .eq("host_id", host.id)
+    .maybeSingle();
+
+  const documentPath = submission?.id_document_path;
+  if (!documentPath) return fail("No ID document on this submission");
+
+  const { data: signed, error } = await service.storage
+    .from("guest-documents")
+    .createSignedUrl(documentPath, 120);
+
+  const signedUrl = signed?.signedUrl;
+  if (error || !signedUrl) return fail(error?.message ?? "Could not open ID document");
+
+  redirect(signedUrl);
 }
 
 export async function revokeGmailConnection() {

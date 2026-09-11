@@ -4,34 +4,55 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/service";
 import { matchSubmission } from "@/services/matching/matching-service";
+import { indianMobileLocal, normalizeInPhone } from "@/lib/phone";
+import { prepareGuestIdUpload } from "@/lib/guest-id-upload";
 
 const guestFormSchema = z.object({
   hostId: z.string().uuid(),
   hostSlug: z.string().min(1),
   name: z.string().min(2),
-  whatsappNumber: z
-    .string()
-    .regex(/^\+?[1-9]\d{7,14}$/, "Enter a valid phone number with country code"),
+  whatsappNumber: z.string().regex(/^\+91[6-9]\d{9}$/, "Enter a 10-digit Indian WhatsApp number"),
   claimedAirbnbBookingId: z.string().min(4),
-  // Hidden on the guest form for the pilot; default when the field is absent.
   idDocumentType: z.enum(["aadhaar", "passport", "other"]),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
   guestCount: z.coerce.number().int().positive().optional(),
 });
 
+function preservedFields(formData: FormData): Record<string, string> {
+  const name = String(formData.get("name") ?? "").trim();
+  const phone = indianMobileLocal(String(formData.get("whatsappNumber") ?? ""));
+  const booking = String(formData.get("claimedAirbnbBookingId") ?? "").trim();
+  const idType = String(formData.get("idDocumentType") ?? "").trim();
+  const fields: Record<string, string> = {};
+  if (name) fields.name = name;
+  if (phone) fields.phone = phone;
+  if (booking) fields.booking = booking;
+  if (idType) fields.idType = idType;
+  return fields;
+}
+
 function checkinPath(hostSlug: string, params: Record<string, string>) {
   const query = new URLSearchParams(params).toString();
   return `/${hostSlug}/checkin${query ? `?${query}` : ""}`;
 }
 
+function fail(hostSlug: string, formData: FormData, error: string): never {
+  redirect(checkinPath(hostSlug || "checkin", { error, ...preservedFields(formData) }));
+}
+
 export async function submitGuestForm(formData: FormData) {
   const hostSlugFallback = String(formData.get("hostSlug") ?? "").trim();
+  const phone = normalizeInPhone(String(formData.get("whatsappNumber") ?? ""));
+  if (!phone) {
+    fail(hostSlugFallback, formData, "Enter a 10-digit Indian WhatsApp number");
+  }
+
   const parsed = guestFormSchema.safeParse({
     hostId: formData.get("hostId"),
     hostSlug: hostSlugFallback,
     name: formData.get("name"),
-    whatsappNumber: formData.get("whatsappNumber"),
+    whatsappNumber: phone,
     claimedAirbnbBookingId: formData.get("claimedAirbnbBookingId"),
     idDocumentType: formData.get("idDocumentType"),
     checkIn: formData.get("checkIn") || undefined,
@@ -40,43 +61,35 @@ export async function submitGuestForm(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(
-      checkinPath(
-        hostSlugFallback || "checkin",
-        { error: parsed.error.issues[0]?.message ?? "Invalid form" }
-      )
-    );
+    fail(hostSlugFallback, formData, parsed.error.issues[0]?.message ?? "Please check the form and try again");
   }
 
   const file = formData.get("idDocument") as File | null;
-  const hasFile = Boolean(file && file.size > 0);
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-  if (!hasFile || !file) {
-    redirect(checkinPath(parsed.data.hostSlug, { error: "Please upload a photo or PDF of your ID" }));
+  if (!file || file.size === 0) {
+    fail(parsed.data.hostSlug, formData, "Please upload a photo or PDF of your ID");
   }
-  if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
-    redirect(checkinPath(parsed.data.hostSlug, { error: "Invalid file type or size" }));
+
+  let upload: Awaited<ReturnType<typeof prepareGuestIdUpload>>;
+  try {
+    upload = await prepareGuestIdUpload(file);
+  } catch (error) {
+    fail(
+      parsed.data.hostSlug,
+      formData,
+      error instanceof Error ? error.message : "Please upload a JPEG, PNG, WebP, or PDF of your ID"
+    );
   }
 
   const supabase = createServiceClient();
   const submissionId = crypto.randomUUID();
-  let storagePath = "";
+  const storagePath = `${parsed.data.hostId}/bookings/${submissionId}/document.${upload.extension}`;
 
-  if (hasFile && file) {
-    const extension = file.name.includes(".")
-      ? file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase().replace(/[^a-z0-9]/g, "")
-      : "";
-    const safeExtension = extension ? `.${extension}` : "";
-    storagePath = `${parsed.data.hostId}/bookings/${submissionId}/document${safeExtension}`;
+  const { error: uploadError } = await supabase.storage
+    .from("guest-documents")
+    .upload(storagePath, upload.buffer, { contentType: upload.contentType, upsert: false });
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const { error: uploadError } = await supabase.storage
-      .from("guest-documents")
-      .upload(storagePath, buffer, { contentType: file.type, upsert: false });
-
-    if (uploadError) {
-      redirect(checkinPath(parsed.data.hostSlug, { error: uploadError.message }));
-    }
+  if (uploadError) {
+    fail(parsed.data.hostSlug, formData, uploadError.message);
   }
 
   const { data: submission, error } = await supabase
@@ -98,11 +111,7 @@ export async function submitGuestForm(formData: FormData) {
     .single();
 
   if (error || !submission) {
-    redirect(
-      checkinPath(parsed.data.hostSlug, {
-        error: error?.message ?? "Submission failed",
-      })
-    );
+    fail(parsed.data.hostSlug, formData, error?.message ?? "Submission failed. Please try again.");
   }
 
   const bookingId = await matchSubmission(submission.id);

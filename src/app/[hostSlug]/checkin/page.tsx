@@ -3,6 +3,8 @@ import { getHostBySlug } from "@/lib/host";
 import { submitGuestForm } from "@/app/[hostSlug]/checkin/actions";
 import { getBookingMessagingReadiness } from "@/services/booking/property-booking-service";
 import { SubmitButton } from "@/components/submit-button";
+import { IndianPhoneField } from "@/components/indian-phone-field";
+import { LodgioLogo } from "@/components/lodgio-logo";
 
 /** Pilot: hide stay-details. ID upload is required. */
 const SHOW_ID_VERIFICATION = true;
@@ -40,7 +42,15 @@ export default async function GuestCheckinPage({
   searchParams,
 }: {
   params: Promise<{ hostSlug: string }>;
-  searchParams: Promise<{ error?: string; success?: string; bookingId?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    success?: string;
+    bookingId?: string;
+    name?: string;
+    phone?: string;
+    booking?: string;
+    idType?: string;
+  }>;
 }) {
   const { hostSlug } = await params;
   const query = await searchParams;
@@ -55,7 +65,7 @@ export default async function GuestCheckinPage({
       ? await getBookingMessagingReadiness(query.bookingId)
       : { ready: false, reasons: [] };
     return (
-      <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-4">
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center bg-[var(--lodgio-cream)] px-4">
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <h1 className="text-xl font-semibold text-emerald-900">You&apos;re all set</h1>
           <p className="mt-2 text-sm text-emerald-800">
@@ -68,17 +78,25 @@ export default async function GuestCheckinPage({
     );
   }
 
+  const idType =
+    query.idType === "passport" || query.idType === "other" || query.idType === "aadhaar"
+      ? query.idType
+      : "aadhaar";
+
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-4 py-8">
+    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center bg-[var(--lodgio-cream)] px-4 py-8">
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{hostName}</p>
-        <h1 className="mt-1 text-xl font-semibold">Guest check-in</h1>
+        <LodgioLogo />
+        <p className="mt-4 text-xs font-medium uppercase tracking-wide text-zinc-500">{hostName}</p>
+        <h1 className="mt-1 text-xl font-semibold text-[var(--lodgio-olive)]">Guest check-in</h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">
           You received this link from {hostName} after booking on Airbnb. This one-time form lets
           them reach you with check-in details — Airbnb does not share your phone number with hosts.
         </p>
         {query.error ? (
-          <p className="mt-3 text-sm text-red-600">{decodeURIComponent(query.error)}</p>
+          <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {decodeURIComponent(query.error)}
+          </p>
         ) : null}
 
         <form action={submitGuestForm} className="mt-6 space-y-5" encType="multipart/form-data">
@@ -86,27 +104,23 @@ export default async function GuestCheckinPage({
           <input type="hidden" name="hostSlug" value={hostSlug} />
 
           <FormSection title="How we can reach you">
-            <FormField
-              label="Your full name"
-              hint="As it appears on your Airbnb booking."
-            >
-              <input name="name" required placeholder="e.g. Manish Kumar" className="field" />
-            </FormField>
-
-            <FormField
-              label="WhatsApp number"
-              hint="This must be a WhatsApp number — we send check-in details there, not by SMS or regular call. Include country code (+91 for India)."
-            >
+            <FormField label="Your full name" hint="As it appears on your Airbnb booking.">
               <input
-                name="whatsappNumber"
+                name="name"
                 required
-                defaultValue="+91"
-                placeholder="+91 98765 43210"
+                defaultValue={query.name ?? ""}
+                placeholder="e.g. Manish Kumar"
                 className="field"
-                type="tel"
-                autoComplete="tel"
               />
             </FormField>
+
+            <IndianPhoneField
+              name="whatsappNumber"
+              label="WhatsApp number"
+              required
+              defaultValue={query.phone}
+              hint="This must be a WhatsApp number — we send check-in details there."
+            />
           </FormSection>
 
           <FormSection title="Your booking">
@@ -117,6 +131,7 @@ export default async function GuestCheckinPage({
               <input
                 name="claimedAirbnbBookingId"
                 required
+                defaultValue={query.booking ?? ""}
                 placeholder="e.g. HM2SJPMSJS"
                 className="field"
                 autoCapitalize="characters"
@@ -131,7 +146,7 @@ export default async function GuestCheckinPage({
               </p>
 
               <FormField label="ID type">
-                <select name="idDocumentType" required className="field">
+                <select name="idDocumentType" required className="field" defaultValue={idType}>
                   <option value="aadhaar">Aadhaar card</option>
                   <option value="passport">Passport</option>
                   <option value="other">Other government ID</option>
@@ -140,13 +155,13 @@ export default async function GuestCheckinPage({
 
               <FormField
                 label="Photo or PDF of your ID"
-                hint="Required. JPEG, PNG, WebP, or PDF, up to 10 MB."
+                hint="Required. JPEG, PNG, WebP, PDF, or an iPhone photo, up to 10 MB."
               >
                 <input
                   name="idDocument"
                   type="file"
                   required
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf,.heic,.heif"
                   className="field file:mr-3 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-zinc-700"
                 />
               </FormField>

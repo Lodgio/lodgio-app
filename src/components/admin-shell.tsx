@@ -2,6 +2,7 @@ import Link from "next/link";
 import { signOut } from "@/app/(auth)/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { createServiceClient } from "@/lib/supabase/service";
+import { LodgioLogo } from "@/components/lodgio-logo";
 
 export async function AdminShell({
   children,
@@ -25,11 +26,12 @@ export async function AdminShell({
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900">
+    <div className="min-h-screen bg-[var(--lodgio-cream)] text-zinc-900">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
-            <p className="text-sm text-zinc-500">Lodgio Admin</p>
+            <LodgioLogo href="/admin" size="sm" />
+            <p className="mt-1 text-xs text-zinc-500">Admin</p>
             <h1 className="text-lg font-semibold">{title}</h1>
           </div>
           <div className="flex items-center gap-3">

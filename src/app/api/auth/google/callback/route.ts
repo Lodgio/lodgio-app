@@ -68,7 +68,7 @@ export async function GET(request: Request) {
 
     const { data: existing } = await service
       .from("gmail_connections")
-      .select("id, email_address, refresh_token, granted_scopes")
+      .select("id, email_address, refresh_token, granted_scopes, sync_cursor")
       .eq("host_id", host.id)
       .maybeSingle();
 
@@ -77,6 +77,9 @@ export async function GET(request: Request) {
         throw new Error("No refresh token returned — revoke prior access and retry with consent");
       }
       const grantedScopes = mergeScopes(exchanged.grantedScopes, GMAIL_SCOPE);
+      const firstConnectCursor = existing?.sync_cursor
+        ? undefined
+        : String(Math.floor(Date.now() / 1000));
       const { error: upsertError } = await service.from("gmail_connections").upsert(
         {
           host_id: host.id,
@@ -84,6 +87,7 @@ export async function GET(request: Request) {
           refresh_token: encryptToken(exchanged.refreshToken),
           status: "active",
           granted_scopes: grantedScopes,
+          ...(firstConnectCursor ? { sync_cursor: firstConnectCursor } : {}),
         },
         { onConflict: "host_id,email_address" }
       );
@@ -96,6 +100,7 @@ export async function GET(request: Request) {
             refresh_token: encryptToken(exchanged.refreshToken),
             status: "active",
             granted_scopes: grantedScopes,
+            ...(firstConnectCursor ? { sync_cursor: firstConnectCursor } : {}),
           })
           .eq("host_id", host.id);
         if (updateError) throw updateError;

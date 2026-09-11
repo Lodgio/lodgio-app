@@ -3,7 +3,15 @@ import { redirect } from "next/navigation";
 import { Card } from "@/components/dashboard-shell";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
-import { advanceOnboarding, createProperty, createCaretaker } from "@/app/(dashboard)/dashboard/actions";
+import {
+  advanceOnboarding,
+  createProperty,
+  createCaretaker,
+  updateProperty,
+  updateCaretaker,
+} from "@/app/(dashboard)/dashboard/actions";
+import { PropertyFields } from "@/components/property-fields";
+import { IndianPhoneField } from "@/components/indian-phone-field";
 import { GmailAccessPanel } from "@/components/gmail-access-panel";
 import { isPhase12Demo } from "@/lib/demo";
 import {
@@ -149,6 +157,16 @@ export default async function OnboardingPage({
                       {p.address ? (
                         <span className="text-zinc-500"> — {p.address}</span>
                       ) : null}
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-blue-600">Edit</summary>
+                        <form action={updateProperty} className="mt-2 space-y-3">
+                          <input type="hidden" name="property_id" value={p.id} />
+                          <PropertyFields defaults={p} />
+                          <SubmitButton className="btn-secondary" pendingLabel="Saving…">
+                            Save changes
+                          </SubmitButton>
+                        </form>
+                      </details>
                     </li>
                   ))}
                 </ul>
@@ -157,35 +175,7 @@ export default async function OnboardingPage({
 
             <form action={createProperty} className="space-y-4 border-t border-zinc-100 pt-4">
               <input type="hidden" name="onboarding_next_step" value="2" />
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Listing name</label>
-                <p className="text-xs text-zinc-500">Exactly as in Airbnb emails, e.g. Rehaish Maple.</p>
-                <input name="name" required placeholder="Rehaish Maple" className="field" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Address</label>
-                <p className="text-xs text-zinc-500">Shown to guests with check-in details.</p>
-                <input name="address" placeholder="Street, city" className="field" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Google Maps link</label>
-                <p className="text-xs text-zinc-500">Precise pin for check-in — better than Airbnb&apos;s map.</p>
-                <input name="location_url" placeholder="https://maps.google.com/..." className="field" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Check-in time</label>
-                <p className="text-xs text-zinc-500">When guests can arrive, e.g. 2:00 PM.</p>
-                <input
-                  name="check_in_time"
-                  placeholder="2:00 PM"
-                  defaultValue="2:00 PM"
-                  className="field"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">House rules (optional)</label>
-                <textarea name="house_rules" placeholder="Check-in time, quiet hours..." className="field" rows={3} />
-              </div>
+              <PropertyFields />
               <SubmitButton className="btn-primary" pendingLabel="Saving…">
                 Save property
               </SubmitButton>
@@ -222,6 +212,23 @@ export default async function OnboardingPage({
                     >
                       <span className="font-medium">{c.name}</span>
                       <span className="text-zinc-500"> — {c.phone}</span>
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-blue-600">Edit</summary>
+                        <form action={updateCaretaker} className="mt-2 space-y-3">
+                          <input type="hidden" name="caretaker_id" value={c.id} />
+                          <input type="hidden" name="error_path" value="/dashboard/onboarding?step=3" />
+                          <input name="name" required defaultValue={c.name} className="field" />
+                          <IndianPhoneField
+                            name="phone"
+                            label="WhatsApp number"
+                            required
+                            defaultValue={c.phone}
+                          />
+                          <SubmitButton className="btn-secondary" pendingLabel="Saving…">
+                            Save changes
+                          </SubmitButton>
+                        </form>
+                      </details>
                     </li>
                   ))}
                 </ul>
@@ -234,11 +241,7 @@ export default async function OnboardingPage({
                 <label className="block text-sm font-medium">Caretaker name</label>
                 <input name="name" required placeholder="e.g. Rajesh" className="field" />
               </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Phone number</label>
-                <p className="text-xs text-zinc-500">Include country code, e.g. +91 98765 43210.</p>
-                <input name="phone" required placeholder="+91..." className="field" />
-              </div>
+              <IndianPhoneField name="phone" label="WhatsApp number" required />
               {(properties ?? []).length > 0 ? (
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium">Property</label>

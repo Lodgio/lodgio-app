@@ -98,12 +98,12 @@ export function GmailAccessPanel({
     <div className="space-y-3 text-sm">
       <p className="text-zinc-600">
         {variant === "overview"
-          ? "Submit the inbox that receives Airbnb confirmation emails. An admin must allow it before you can connect."
+          ? "Finish onboarding to submit the inbox. Every host is verified before Gmail can connect."
           : "Enter the inbox that receives Airbnb confirmation emails. An admin will allow it, then you can connect."}
       </p>
       {variant === "overview" ? (
         <a href="/dashboard/onboarding?step=1" className="btn-primary inline-block">
-          Submit Gmail inbox
+          Continue setup
         </a>
       ) : (
         <GmailRequestForm defaultEmail={requestedEmail ?? ""} />

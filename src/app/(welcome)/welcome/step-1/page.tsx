@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
 import { submitWhatsAppNumber, confirmWhatsAppReceived } from "@/app/(welcome)/welcome/actions";
 import { SubmitButton } from "@/components/submit-button";
+import { IndianPhoneField } from "@/components/indian-phone-field";
 
 export default async function WelcomeStep1({
   searchParams,
@@ -29,7 +30,7 @@ export default async function WelcomeStep1({
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Step 1 of 2</p>
       <h2 className="mt-1 text-lg font-semibold">Verify your WhatsApp number</h2>
       <p className="mt-2 text-sm text-zinc-600">
-        We send you WhatsApp updates about your bookings, so let&apos;s make sure your number works.
+        We send booking updates on WhatsApp. Enter your 10-digit number so we can check it works.
       </p>
 
       {params.error ? (
@@ -38,17 +39,9 @@ export default async function WelcomeStep1({
         </p>
       ) : null}
 
-      <form action={submitWhatsAppNumber} className="mt-5 space-y-2">
-        <label className="block text-sm font-medium">Your WhatsApp number</label>
-        <p className="text-xs text-zinc-500">Include country code, e.g. +91 98765 43210.</p>
-        <input
-          name="phone"
-          required
-          defaultValue={host.phone ?? ""}
-          placeholder="+91..."
-          className="field"
-        />
-        <SubmitButton className="btn-primary mt-2 w-full" pendingLabel="Sending…">
+      <form action={submitWhatsAppNumber} className="mt-5 space-y-3">
+        <IndianPhoneField name="phone" label="Your WhatsApp number" required defaultValue={host.phone} />
+        <SubmitButton className="btn-primary w-full" pendingLabel="Sending…">
           {messageSent ? "Resend welcome message" : "Send welcome message"}
         </SubmitButton>
       </form>
@@ -64,9 +57,7 @@ export default async function WelcomeStep1({
               Yes, I received it
             </SubmitButton>
           </form>
-          <p className="mt-2 text-xs text-zinc-500">
-            Didn&apos;t get it? Check the number above and resend.
-          </p>
+          <p className="mt-2 text-xs text-zinc-500">Didn&apos;t get it? Check the number and resend.</p>
         </div>
       ) : null}
     </div>

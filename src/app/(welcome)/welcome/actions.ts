@@ -5,14 +5,17 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
 import { getWhatsAppClient } from "@/integrations";
 import { getTemplateRef } from "@/integrations/whatsapp/templates";
+import { normalizeInPhone } from "@/lib/phone";
 
 export async function submitWhatsAppNumber(formData: FormData) {
   const host = await getCurrentHost();
   if (!host) throw new Error("Unauthorized");
 
-  const phone = String(formData.get("phone") ?? "").trim();
+  const phone = normalizeInPhone(String(formData.get("phone") ?? ""));
   if (!phone) {
-    redirect("/welcome/step-1?error=" + encodeURIComponent("Please enter your WhatsApp number"));
+    redirect(
+      "/welcome/step-1?error=" + encodeURIComponent("Enter a 10-digit Indian WhatsApp number")
+    );
   }
 
   const supabase = await createClient();

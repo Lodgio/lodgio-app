@@ -10,6 +10,7 @@ import {
   setHostActive,
   deleteHost,
   approveGmailAccess,
+  setHostPassword,
 } from "@/app/(admin)/admin/actions";
 import { SubmitButton } from "@/components/submit-button";
 
@@ -19,6 +20,7 @@ const savedMessages: Record<string, string> = {
   activated: "Host activated.",
   deactivated: "Host deactivated.",
   gmail: "Gmail access approved.",
+  password: "Password updated.",
 };
 
 export default async function AdminHostDetailPage({
@@ -181,6 +183,26 @@ export default async function AdminHostDetailPage({
             </form>
           </Card>
         ) : null}
+
+        <Card title="Set password">
+          <p className="mb-3 text-sm text-zinc-600">
+            Use this if the host forgot their password and reset email is not set up yet.
+          </p>
+          <form action={setHostPassword} className="space-y-3">
+            <input type="hidden" name="host_id" value={host.id} />
+            <input
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              placeholder="New password"
+              className="field"
+            />
+            <SubmitButton className="btn-primary" pendingLabel="Saving…">
+              Set new password
+            </SubmitButton>
+          </form>
+        </Card>
 
         <Card title="Danger zone">
           <div className="space-y-4">

@@ -13,6 +13,8 @@ import { isWhatsAppEnabled } from "@/lib/features";
 import { SubmitButton } from "@/components/submit-button";
 import { scopesIncludeDriveFile, spreadsheetUrl } from "@/services/sheets/sheets-links";
 import { GmailAccessPanel } from "@/components/gmail-access-panel";
+import { IndianPhoneField } from "@/components/indian-phone-field";
+import { env } from "@/lib/env";
 
 export default async function SettingsPage({
   searchParams,
@@ -23,6 +25,7 @@ export default async function SettingsPage({
     url?: string;
     detail?: string;
     exported?: string;
+    error?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -44,6 +47,12 @@ export default async function SettingsPage({
 
   return (
     <div className="space-y-6">
+        {params.error ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {decodeURIComponent(params.error)}
+          </div>
+        ) : null}
+
         {params.gmail === "error" ? (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             Gmail connection failed. Please try again.
@@ -96,11 +105,28 @@ export default async function SettingsPage({
         <Card title="Profile">
           <form action={updateHostProfile} className="space-y-3">
             <input name="business_name" defaultValue={host?.business_name ?? ""} className="field" />
-            <input name="phone" defaultValue={host?.phone ?? ""} placeholder="Host phone" className="field" />
+            <IndianPhoneField
+              name="phone"
+              label="WhatsApp number"
+              defaultValue={host?.phone}
+            />
             <SubmitButton className="btn-primary" pendingLabel="Saving…">
               Save profile
             </SubmitButton>
           </form>
+        </Card>
+
+        <Card title="Guest check-in">
+          <p className="mb-2 text-sm text-zinc-600">
+            Paste this into your Airbnb automatic message after a booking is confirmed.
+          </p>
+          <code className="mb-4 block rounded-md bg-zinc-100 p-3 text-sm break-all">
+            {env.appBaseUrl}/{host?.slug}/checkin
+          </code>
+          <p className="text-sm text-zinc-600">
+            Guest ID documents (Aadhaar, passport) stay in Lodgio private storage. They are not
+            uploaded to Google Drive. Open a booking or unmatched submission to view the file.
+          </p>
         </Card>
 
         <Card title="Gmail">

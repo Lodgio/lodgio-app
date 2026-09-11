@@ -9,7 +9,30 @@ import { isPhase12Demo } from "@/lib/demo";
 import { getHostSetupWarnings } from "@/services/booking/property-booking-service";
 import { SubmitButton } from "@/components/submit-button";
 import { BookingStatusFilters } from "@/components/booking-status-filters";
+import { ViewGuestIdButton } from "@/components/view-guest-id-button";
 import type { BookingStatus, Tables } from "@/types/database";
+
+function latestRecipientStatus(
+  logs: Array<Pick<Tables<"message_log">, "booking_id" | "recipient_type" | "status">>,
+  bookingId: string,
+  recipientType: "guest" | "caretaker"
+): "sent" | "failed" | "none" {
+  const rows = logs.filter((log) => log.booking_id === bookingId && log.recipient_type === recipientType);
+  if (rows.some((log) => ["queued", "sent", "delivered"].includes(log.status))) return "sent";
+  if (rows.some((log) => log.status === "failed")) return "failed";
+  return "none";
+}
+
+function WaStatus({ label, status }: { label: string; status: "sent" | "failed" | "none" }) {
+  const text = status === "sent" ? "Sent" : status === "failed" ? "Failed" : "Not sent";
+  const color =
+    status === "sent" ? "text-emerald-700" : status === "failed" ? "text-red-700" : "text-zinc-500";
+  return (
+    <div className={`text-xs ${color}`}>
+      {label}: {text}
+    </div>
+  );
+}
 
 const BOOKING_STATUSES: BookingStatus[] = [
   "ingested",
@@ -23,9 +46,9 @@ const BOOKING_STATUSES: BookingStatus[] = [
 export default async function BookingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; synced?: string }>;
+  searchParams: Promise<{ status?: string; synced?: string; error?: string }>;
 }) {
-  const { status, synced } = await searchParams;
+  const { status, synced, error } = await searchParams;
   const phase12 = isPhase12Demo();
   const host = await getCurrentHost();
   const supabase = await createClient();
@@ -42,7 +65,9 @@ export default async function BookingsPage({
   const guestIds = [...new Set(rows.map((b) => b.guest_id).filter(Boolean))] as string[];
   const bookingIds = rows.map((b) => b.id);
 
-  const [{ data: properties }, { data: guests }, { data: messageLogs }] = await Promise.all([
+  const airbnbIds = rows.map((b) => b.airbnb_booking_id).filter(Boolean);
+  const [{ data: properties }, { data: guests }, { data: messageLogs }, { data: byBooking }, { data: byClaim }] =
+    await Promise.all([
     supabase.from("properties").select("id, name").order("name"),
     guestIds.length
       ? supabase.from("guests").select("id, name, whatsapp_number").in("id", guestIds)
@@ -53,7 +78,32 @@ export default async function BookingsPage({
           .select("booking_id, recipient_type, template_kind, status")
           .in("booking_id", bookingIds)
       : Promise.resolve({ data: [] as Array<Pick<Tables<"message_log">, "booking_id" | "recipient_type" | "template_kind" | "status">> }),
+    bookingIds.length
+      ? supabase
+          .from("form_submissions")
+          .select("id, booking_id, id_document_path")
+          .in("booking_id", bookingIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; booking_id: string | null; id_document_path: string }> }),
+    airbnbIds.length
+      ? supabase
+          .from("form_submissions")
+          .select("id, claimed_airbnb_booking_id, id_document_path")
+          .in("claimed_airbnb_booking_id", airbnbIds)
+      : Promise.resolve({
+          data: [] as Array<{ id: string; claimed_airbnb_booking_id: string; id_document_path: string }>,
+        }),
   ]);
+
+  const submissionByBookingId = new Map(
+    (byBooking ?? [])
+      .filter((row) => row.booking_id && row.id_document_path)
+      .map((row) => [row.booking_id as string, row])
+  );
+  const submissionByAirbnbId = new Map(
+    (byClaim ?? [])
+      .filter((row) => row.id_document_path)
+      .map((row) => [row.claimed_airbnb_booking_id, row])
+  );
 
   const retryableBookingIds = new Set<string>();
   const succeededKeys = new Set(
@@ -72,6 +122,12 @@ export default async function BookingsPage({
 
   return (
     <div className="space-y-4">
+        {error ? (
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {decodeURIComponent(error)}
+          </p>
+        ) : null}
+
         {synced !== undefined ? (
           <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             Gmail sync complete — {synced} new booking{synced === "1" ? "" : "s"} imported.
@@ -112,6 +168,10 @@ export default async function BookingsPage({
                 {rows.map((b) => {
                   const guest = b.guest_id ? guestMap.get(b.guest_id) : undefined;
                   const propertyName = b.property_id ? propertyMap.get(b.property_id) : undefined;
+                  const submission =
+                    submissionByBookingId.get(b.id) ?? submissionByAirbnbId.get(b.airbnb_booking_id);
+                  const guestWa = latestRecipientStatus(messageLogs ?? [], b.id, "guest");
+                  const caretakerWa = latestRecipientStatus(messageLogs ?? [], b.id, "caretaker");
                   return (
                     <tr key={b.id} className="border-b border-zinc-100 align-top">
                       <td className="py-3 pr-4">
@@ -162,6 +222,15 @@ export default async function BookingsPage({
                       </td>
                       <td className="py-3">
                         <StatusBadge status={b.status} />
+                        <div className="mt-2 space-y-1">
+                          <WaStatus label="Guest WA" status={guestWa} />
+                          <WaStatus label="Caretaker WA" status={caretakerWa} />
+                        </div>
+                        {submission ? (
+                          <div className="mt-2">
+                            <ViewGuestIdButton submissionId={submission.id} />
+                          </div>
+                        ) : null}
                         {b.status === "matched" || retryableBookingIds.has(b.id) ? (
                           <form action={sendBookingMessages} className="mt-2">
                             <input type="hidden" name="booking_id" value={b.id} />

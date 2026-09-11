@@ -15,6 +15,7 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardTitle } from "@/components/dashboard-title";
 import { DashboardMain } from "@/components/dashboard-main";
 import { NavigationPendingProvider } from "@/components/navigation-pending";
+import { LodgioLogo } from "@/components/lodgio-logo";
 
 async function getNavCounts(hostId: string): Promise<Partial<Record<NavCountKey, number>>> {
   const supabase = await createClient();
@@ -52,11 +53,11 @@ function ShellChrome({
   headerActions: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900">
+    <div className="min-h-screen bg-[var(--lodgio-cream)] text-zinc-900">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
-            <p className="text-sm text-zinc-500">Lodgio</p>
+            <LodgioLogo href="/dashboard" size="sm" />
             {headerActions}
           </div>
           <div className="flex items-center gap-3">

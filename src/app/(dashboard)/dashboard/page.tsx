@@ -5,6 +5,8 @@ import { isPhase12Demo } from "@/lib/demo";
 import { getHostSetupWarnings } from "@/services/booking/property-booking-service";
 import { spreadsheetUrl } from "@/services/sheets/sheets-links";
 import { GmailAccessPanel } from "@/components/gmail-access-panel";
+import { hostHasActiveGmail } from "@/lib/host";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function DashboardPage({
@@ -15,6 +17,9 @@ export default async function DashboardPage({
   const params = await searchParams;
   const phase12 = isPhase12Demo();
   const host = await getCurrentHost();
+  if (host && !(await hostHasActiveGmail(host.id))) {
+    redirect("/dashboard/onboarding?step=1");
+  }
   const supabase = await createClient();
   const setupWarnings = host && !phase12 ? await getHostSetupWarnings(host.id) : [];
 

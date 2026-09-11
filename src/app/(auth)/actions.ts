@@ -56,3 +56,38 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    redirect("/forgot-password?error=" + encodeURIComponent("Enter your email"));
+  }
+
+  const supabase = await createClient();
+  const { env } = await import("@/lib/env");
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${env.appBaseUrl}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    redirect(`/forgot-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/forgot-password?sent=1");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 8) {
+    redirect("/reset-password?error=" + encodeURIComponent("Use at least 8 characters"));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  await supabase.auth.signOut();
+  redirect("/login?reset=1");
+}

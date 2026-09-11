@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3efe0;
+  --background: #f5e6c7;
   --foreground: #1f2937;
-  --lodgio-cream: #f3efe0;
+  --lodgio-cream: #f5e6c7;
   --lodgio-olive: #636b2f;
-  --lodgio-ink: #2b4b5a;
+  --lodgio-ink: #1f2a32;
+  --lodgio-gold: #c4a574;
   --lodgio-mint: #2dd4bf;
 }
 
@@ -31,9 +32,9 @@ textarea.field {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-[var(--lodgio-ink)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center rounded-full bg-[var(--lodgio-ink)] px-7 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white px-5 py-2 text-sm font-medium hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center rounded-full border border-[var(--lodgio-gold)] bg-white px-7 py-2.5 text-sm font-medium text-[var(--lodgio-ink)] hover:bg-[var(--lodgio-cream)] disabled:cursor-not-allowed disabled:opacity-60;
 }

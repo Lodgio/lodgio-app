@@ -1,8 +1,17 @@
+const PRODUCTION_APP_URL = "https://app.lodgio.in";
+
 function required(name: string, value: string | undefined): string {
   if (!value) {
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
+}
+
+function resolveAppBaseUrl(): string {
+  const configured = (process.env.APP_BASE_URL ?? "").replace(/\/$/, "");
+  if (configured && !configured.includes(".vercel.app")) return configured;
+  if (process.env.VERCEL_ENV === "production") return PRODUCTION_APP_URL;
+  return configured || "http://localhost:3000";
 }
 
 function flag(name: string, defaultValue = false): boolean {
@@ -12,7 +21,9 @@ function flag(name: string, defaultValue = false): boolean {
 }
 
 export const env = {
-  appBaseUrl: process.env.APP_BASE_URL ?? "http://localhost:3000",
+  get appBaseUrl() {
+    return resolveAppBaseUrl();
+  },
   cronSecret: process.env.CRON_SECRET ?? "",
 
   // Email of the first platform admin. On first sign-in this user is auto-added to the admins table.

@@ -56,7 +56,26 @@ async function getHostGateState(
   };
 }
 
+const CANONICAL_APP_HOST = "app.lodgio.in";
+
 export async function updateSession(request: NextRequest) {
+  const host = (request.headers.get("host") ?? "").split(":")[0];
+  if (host === "lodgio-app.vercel.app") {
+    const dest = new URL(request.nextUrl.pathname + request.nextUrl.search, `https://${CANONICAL_APP_HOST}`);
+    return NextResponse.redirect(dest);
+  }
+
+  const hasAuthCode =
+    request.nextUrl.searchParams.has("code") || request.nextUrl.searchParams.has("token_hash");
+  if (hasAuthCode && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    if (!url.searchParams.get("next")) {
+      url.searchParams.set("next", "/reset-password");
+    }
+    return NextResponse.redirect(url);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(

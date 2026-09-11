@@ -16,8 +16,7 @@ export default async function ForgotPasswordPage({
         <LodgioLogo href="https://lodgio.in" />
         <h1 className="mt-4 text-xl font-semibold text-[var(--lodgio-olive)]">Forgot password</h1>
         <p className="mt-2 text-sm text-zinc-600">
-          We&apos;ll email a reset link if this address has an account. Until email is configured,
-          an admin can set a new password for you.
+          We&apos;ll email a reset link if this address has an account.
         </p>
         {sent ? (
           <p className="mt-3 text-sm text-emerald-700">

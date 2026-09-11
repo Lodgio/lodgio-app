@@ -53,7 +53,7 @@ function ShellChrome({
   headerActions: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[var(--lodgio-cream)] text-zinc-900">
+    <div className="min-h-screen bg-[var(--lodgio-cream)] text-[var(--lodgio-olive)]">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
@@ -63,7 +63,7 @@ function ShellChrome({
           <div className="flex items-center gap-3">
             <form action={signOut}>
               <SubmitButton
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-secondary px-4 py-1.5 text-xs"
                 pendingLabel="Signing out…"
               >
                 Sign out
@@ -108,11 +108,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <NavigationPendingProvider>
-        <div className="min-h-screen bg-zinc-50 text-zinc-900">
+        <div className="min-h-screen bg-[var(--lodgio-cream)] text-[var(--lodgio-olive)]">
           <header className="border-b border-zinc-200 bg-white">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
               <div>
-                <p className="text-sm text-zinc-500">Lodgio</p>
+                <LodgioLogo href="/dashboard" size="sm" />
                 <DashboardTitle />
               </div>
               <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 </Suspense>
                 <form action={signOut}>
                   <SubmitButton
-                    className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="btn-secondary px-4 py-1.5 text-xs"
                     pendingLabel="Signing out…"
                   >
                     Sign out
@@ -149,7 +149,7 @@ async function DashboardHeaderActions() {
   return (
     <>
       {isAdmin ? (
-        <Link href="/admin" className="hidden text-sm text-blue-600 sm:inline">
+        <Link href="/admin" className="link hidden text-sm sm:inline">
           Admin
         </Link>
       ) : null}
@@ -178,7 +178,9 @@ export function Card({
 }) {
   return (
     <section className={`rounded-xl border border-zinc-200 bg-white p-5 shadow-sm ${className}`}>
-      {title ? <h2 className="mb-4 text-base font-semibold">{title}</h2> : null}
+      {title ? (
+        <h2 className="mb-4 text-base font-semibold text-[var(--lodgio-olive)]">{title}</h2>
+      ) : null}
       {children}
     </section>
   );

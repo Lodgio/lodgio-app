@@ -32,7 +32,7 @@ export default async function ForgotPasswordPage({
           </SubmitButton>
         </form>
         <p className="mt-4 text-sm">
-          <Link href="/login" className="text-[var(--lodgio-ink)] underline">
+          <Link href="/login" className="link">
             Back to sign in
           </Link>
         </p>

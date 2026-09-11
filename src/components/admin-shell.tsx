@@ -26,7 +26,7 @@ export async function AdminShell({
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--lodgio-cream)] text-zinc-900">
+    <div className="min-h-screen bg-[var(--lodgio-cream)] text-[var(--lodgio-olive)]">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
@@ -35,13 +35,13 @@ export async function AdminShell({
             <h1 className="text-lg font-semibold">{title}</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="hidden text-sm text-blue-600 sm:inline">
+            <Link href="/dashboard" className="link hidden text-sm sm:inline">
               Back to dashboard
             </Link>
             <span className="hidden text-sm text-zinc-600 sm:inline">{adminEmail}</span>
             <form action={signOut}>
               <SubmitButton
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-secondary px-4 py-1.5 text-xs"
                 pendingLabel="Signing out…"
               >
                 Sign out

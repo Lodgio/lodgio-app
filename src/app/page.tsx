@@ -3,18 +3,18 @@ import { LodgioLogo } from "@/components/lodgio-logo";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[var(--lodgio-cream)]">
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-16">
+    <div className="flex min-h-screen flex-col bg-[var(--lodgio-cream)]">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-16">
         <LodgioLogo size="lg" />
         <h1 className="mt-8 text-4xl font-semibold tracking-tight text-[var(--lodgio-olive)]">
           Hospitality automation that actually saves time.
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-zinc-600">
+        <p className="mt-4 max-w-xl text-lg text-[var(--lodgio-olive)]/80">
           Ingest Airbnb bookings from Gmail, collect guest details on WhatsApp, and send check-in
           instructions without another PMS.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/signup" className="btn-primary">
+          <Link href="/signup" className="btn-accent">
             Get started
           </Link>
           <Link href="/login" className="btn-secondary">
@@ -22,6 +22,21 @@ export default function Home() {
           </Link>
         </div>
       </div>
+      <footer className="section-ink">
+        <div className="mx-auto flex max-w-3xl flex-col items-start gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-lg font-medium text-white">
+            Spend more time hosting. Let Lodgio handle the repetitive work.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/signup" className="btn-accent">
+              Get started
+            </Link>
+            <Link href="/login" className="btn-secondary">
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

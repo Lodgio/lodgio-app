@@ -76,7 +76,7 @@ export default async function OnboardingPage({
             <Link
               key={n}
               href={`/dashboard/onboarding?step=${n}`}
-              className={`rounded-full px-3 py-1 ${effectiveStep === n ? "bg-zinc-900 text-white" : "border border-zinc-300"}`}
+              className={`rounded-full px-3 py-1 ${effectiveStep === n ? "bg-[var(--lodgio-ink)] text-white" : "border border-zinc-300"}`}
             >
               Step {n}
             </Link>

@@ -2,10 +2,11 @@
 
 :root {
   --background: #f5e6c7;
-  --foreground: #1f2937;
+  --foreground: #636b30;
   --lodgio-cream: #f5e6c7;
-  --lodgio-olive: #636b2f;
-  --lodgio-ink: #1f2a32;
+  --lodgio-olive: #636b30;
+  --lodgio-ink: #2c4b5a;
+  --lodgio-accent: #6b7d39;
   --lodgio-gold: #c4a574;
   --lodgio-mint: #2dd4bf;
 }
@@ -24,7 +25,7 @@ body {
 }
 
 .field {
-  @apply w-full rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm outline-none focus:border-[var(--lodgio-ink)];
+  @apply w-full rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-800 outline-none focus:border-[var(--lodgio-ink)];
 }
 
 textarea.field {
@@ -35,6 +36,20 @@ textarea.field {
   @apply inline-flex items-center justify-center rounded-full bg-[var(--lodgio-ink)] px-7 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
 }
 
+.btn-accent {
+  @apply inline-flex items-center justify-center rounded-full bg-[var(--lodgio-accent)] px-7 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
 .btn-secondary {
   @apply inline-flex items-center justify-center rounded-full border border-[var(--lodgio-gold)] bg-white px-7 py-2.5 text-sm font-medium text-[var(--lodgio-ink)] hover:bg-[var(--lodgio-cream)] disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.section-ink {
+  background: var(--lodgio-ink);
+  color: var(--lodgio-cream);
+}
+
+.link {
+  color: var(--lodgio-ink);
+  text-decoration: underline;
 }

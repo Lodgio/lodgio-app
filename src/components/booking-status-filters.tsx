@@ -21,7 +21,7 @@ function Filters() {
         href="/dashboard/bookings"
         exact
         className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
-        activeClassName="border-zinc-900 bg-zinc-900 text-white"
+        activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] text-white"
         pendingClassName="animate-pulse opacity-50"
       >
         All
@@ -32,7 +32,7 @@ function Filters() {
           href={`/dashboard/bookings?status=${s}`}
           exact
           className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
-          activeClassName="border-zinc-900 bg-zinc-900 text-white"
+          activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] text-white"
           pendingClassName="animate-pulse opacity-50"
         >
           {formatBookingStatus(s)}
@@ -47,7 +47,7 @@ export function BookingStatusFilters() {
     <Suspense
       fallback={
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-zinc-900 px-3 py-1 text-xs text-white">All</span>
+          <span className="rounded-full bg-[var(--lodgio-ink)] px-3 py-1 text-xs text-white">All</span>
           {BOOKING_STATUSES.map((s) => (
             <span
               key={s}

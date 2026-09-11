@@ -28,13 +28,13 @@ export default async function LoginPage({
           </SubmitButton>
         </form>
         <p className="mt-4 text-sm text-zinc-600">
-          <Link href="/forgot-password" className="text-[var(--lodgio-ink)] underline">
+          <Link href="/forgot-password" className="link">
             Forgot password?
           </Link>
         </p>
         <p className="mt-2 text-sm text-zinc-600">
           No account?{" "}
-          <Link href="/signup" className="text-[var(--lodgio-ink)] underline">
+          <Link href="/signup" className="link">
             Sign up
           </Link>
         </p>

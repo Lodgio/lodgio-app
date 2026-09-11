@@ -26,7 +26,7 @@ export default async function SignUpPage({
         </form>
         <p className="mt-4 text-sm text-zinc-600">
           Already have an account?{" "}
-          <Link href="/login" className="text-[var(--lodgio-ink)] underline">
+          <Link href="/login" className="link">
             Sign in
           </Link>
         </p>

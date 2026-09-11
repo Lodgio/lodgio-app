@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { CopyButton } from "@/components/copy-button";
 import { SubmitButton } from "@/components/submit-button";
-import { AirbnbPasteGuide } from "@/components/airbnb-paste-guide";
+import { AirbnbPasteGuide, airbnbGuideImages } from "@/components/airbnb-paste-guide";
 import { confirmCheckinLink } from "@/app/(welcome)/welcome/actions";
 
 export default async function WelcomeStep2() {
@@ -14,6 +14,9 @@ export default async function WelcomeStep2() {
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      {airbnbGuideImages.map((href) => (
+        <link key={href} rel="preload" as="image" href={href} />
+      ))}
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Step 2 of 2</p>
       <h2 className="mt-1 text-lg font-semibold">Add your guest check-in link</h2>
       <p className="mt-2 text-sm text-zinc-600">

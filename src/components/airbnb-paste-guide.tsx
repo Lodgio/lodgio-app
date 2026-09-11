@@ -35,6 +35,8 @@ const steps = [
   },
 ] as const;
 
+export const airbnbGuideImages = steps.map((step) => step.src);
+
 export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
   const [active, setActive] = useState(0);
   const current = steps[active];
@@ -83,12 +85,17 @@ export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
       </ol>
 
       <figure className="order-2 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 lg:sticky lg:top-6 lg:row-span-2 lg:min-h-[20rem]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={current.src}
-          alt={current.alt}
-          className="mx-auto max-h-[28rem] w-full object-contain object-top p-3"
-        />
+        {steps.map((step, index) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={step.src}
+            src={step.src}
+            alt={index === active ? step.alt : ""}
+            className={`mx-auto max-h-[28rem] w-full object-contain object-top p-3 ${
+              index === active ? "" : "hidden"
+            }`}
+          />
+        ))}
         <figcaption className="border-t border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-500">
           Step {active + 1}: {current.title}
         </figcaption>

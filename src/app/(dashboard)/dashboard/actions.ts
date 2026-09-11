@@ -249,12 +249,17 @@ export async function updateProperty(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  if (formData.has("caretaker_id")) {
+    await replacePropertyCaretaker(supabase, propertyId, String(formData.get("caretaker_id") ?? ""));
+  }
+
   await remapUnmappedBookingsForHost(host.id);
   await retryPendingMessagingForHost(host.id);
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/bookings");
   revalidatePath("/dashboard/properties");
+  revalidatePath("/dashboard/caretakers");
   revalidatePath("/dashboard/onboarding");
 }
 
@@ -300,6 +305,20 @@ export async function updateCaretaker(formData: FormData) {
   revalidatePath("/dashboard/onboarding");
 }
 
+async function replacePropertyCaretaker(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  propertyId: string,
+  caretakerId: string
+) {
+  await supabase.from("property_caretakers").delete().eq("property_id", propertyId);
+  if (caretakerId) {
+    await supabase.from("property_caretakers").insert({
+      property_id: propertyId,
+      caretaker_id: caretakerId,
+    });
+  }
+}
+
 export async function mapPropertyCaretaker(formData: FormData) {
   const host = await getCurrentHost();
   if (!host) throw new Error("Unauthorized");
@@ -308,13 +327,7 @@ export async function mapPropertyCaretaker(formData: FormData) {
   const propertyId = String(formData.get("property_id") ?? "");
   const caretakerId = String(formData.get("caretaker_id") ?? "");
 
-  await supabase.from("property_caretakers").delete().eq("property_id", propertyId);
-  if (caretakerId) {
-    await supabase.from("property_caretakers").insert({
-      property_id: propertyId,
-      caretaker_id: caretakerId,
-    });
-  }
+  await replacePropertyCaretaker(supabase, propertyId, caretakerId);
 
   await retryPendingMessagingForHost(host.id);
 

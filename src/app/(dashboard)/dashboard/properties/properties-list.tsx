@@ -33,10 +33,10 @@ export async function PropertiesList() {
                 <div className="text-sm text-zinc-500">{p.address}</div>
                 <div className="mt-1 text-sm text-zinc-500">Check-in from {p.check_in_time}</div>
                 <div className="mt-2 text-sm">Caretaker: {caretakerName ?? "Not assigned"}</div>
-                {caretakers && caretakers.length > 0 ? (
+                {!caretakerId && caretakers && caretakers.length > 0 ? (
                   <form action={mapPropertyCaretaker} className="mt-3 flex gap-2">
                     <input type="hidden" name="property_id" value={p.id} />
-                    <select name="caretaker_id" className="field" defaultValue={caretakerId ?? ""}>
+                    <select name="caretaker_id" className="field" defaultValue="">
                       <option value="">Select caretaker</option>
                       {caretakers.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -54,6 +54,23 @@ export async function PropertiesList() {
                   <form action={updateProperty} className="mt-3 space-y-3">
                     <input type="hidden" name="property_id" value={p.id} />
                     <PropertyFields defaults={p} />
+                    {caretakers && caretakers.length > 0 && caretakerId ? (
+                      <div className="space-y-1.5">
+                        <label className="block text-sm font-medium">Caretaker</label>
+                        <select
+                          name="caretaker_id"
+                          className="field"
+                          defaultValue={caretakerId}
+                        >
+                          <option value="">Not assigned</option>
+                          {caretakers.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
                     <SubmitButton className="btn-secondary" pendingLabel="Saving…">
                       Save changes
                     </SubmitButton>

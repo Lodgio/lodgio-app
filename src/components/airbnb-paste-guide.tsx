@@ -28,8 +28,8 @@ const steps = [
     alt: "Airbnb template editor with the Lodgio check-in link highlighted",
   },
   {
-    title: "Schedule 5 minutes after a guest books",
-    detail: "Edit Scheduled for, choose that option, then Apply and Save. Don’t leave it unscheduled.",
+    title: "Set the notification time",
+    detail: "Choose 5 minutes after a guest books, or a custom time. Don’t leave it unscheduled.",
     src: "/welcome/airbnb/05-schedule.png",
     alt: "Airbnb schedule dialog with 5 minutes after a guest books selected",
   },

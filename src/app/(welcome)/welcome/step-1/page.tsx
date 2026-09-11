@@ -41,7 +41,10 @@ export default async function WelcomeStep1({
 
       <form action={submitWhatsAppNumber} className="mt-5 space-y-3">
         <IndianPhoneField name="phone" label="Your WhatsApp number" required defaultValue={host.phone} />
-        <SubmitButton className="btn-primary w-full" pendingLabel="Sending…">
+        <SubmitButton
+          className={`${messageSent ? "btn-secondary" : "btn-primary"} w-full`}
+          pendingLabel="Sending…"
+        >
           {messageSent ? "Resend welcome message" : "Send welcome message"}
         </SubmitButton>
       </form>

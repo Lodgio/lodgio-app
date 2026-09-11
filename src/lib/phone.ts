@@ -1,10 +1,30 @@
-/** India-only WhatsApp / mobile numbers stored as +91XXXXXXXXXX. */
+/** India WhatsApp / mobile numbers stored as +91XXXXXXXXXX, plus a QA allowlist. */
+
+const TEST_WHATSAPP_E164 = ["+48453380133"] as const;
 
 export function digitsOnly(value: string): string {
   return value.replace(/\D/g, "");
 }
 
+function matchTestWhatsApp(value: string): string | null {
+  const digits = digitsOnly(value);
+  for (const allowed of TEST_WHATSAPP_E164) {
+    const allowedDigits = digitsOnly(allowed);
+    if (
+      digits === allowedDigits ||
+      digits === `91${allowedDigits}` ||
+      digits === allowedDigits.slice(2)
+    ) {
+      return allowed;
+    }
+  }
+  return null;
+}
+
 export function normalizeInPhone(value: string): string | null {
+  const testNumber = matchTestWhatsApp(value);
+  if (testNumber) return testNumber;
+
   let digits = digitsOnly(value);
   if (digits.startsWith("91") && digits.length === 12) {
     digits = digits.slice(2);
@@ -17,6 +37,8 @@ export function normalizeInPhone(value: string): string | null {
 
 export function indianMobileLocal(value: string | null | undefined): string {
   if (!value) return "";
+  const testNumber = matchTestWhatsApp(value);
+  if (testNumber) return digitsOnly(testNumber);
   const normalized = normalizeInPhone(value);
   if (normalized) return normalized.slice(3);
   const digits = digitsOnly(value);

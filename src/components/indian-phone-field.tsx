@@ -26,8 +26,8 @@ export function IndianPhoneField({
           required={required}
           inputMode="numeric"
           autoComplete="tel-national"
-          pattern="[0-9]{10}"
-          maxLength={10}
+          pattern="[0-9+]{10,13}"
+          maxLength={13}
           defaultValue={indianMobileLocal(defaultValue)}
           placeholder="9876543210"
           className="field"

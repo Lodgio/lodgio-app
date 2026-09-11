@@ -11,7 +11,9 @@ const guestFormSchema = z.object({
   hostId: z.string().uuid(),
   hostSlug: z.string().min(1),
   name: z.string().min(2),
-  whatsappNumber: z.string().regex(/^\+91[6-9]\d{9}$/, "Enter a 10-digit Indian WhatsApp number"),
+  whatsappNumber: z
+    .string()
+    .regex(/^\+[1-9]\d{9,14}$/, "Enter a 10-digit Indian WhatsApp number"),
   claimedAirbnbBookingId: z.string().min(4),
   idDocumentType: z.enum(["aadhaar", "passport", "other"]),
   checkIn: z.string().optional(),

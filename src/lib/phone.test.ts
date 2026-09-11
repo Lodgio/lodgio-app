@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { indianMobileLocal, normalizeInPhone } from "./phone";
+import { indianMobileLocal, normalizeInPhone, whatsappDestination } from "./phone";
 
 describe("normalizeInPhone", () => {
   it("accepts 10 digits and spaced +91", () => {
@@ -17,6 +17,13 @@ describe("normalizeInPhone", () => {
     expect(normalizeInPhone("-453380133")).toBe("+48453380133");
     expect(normalizeInPhone("+48453380133")).toBe("+48453380133");
     expect(normalizeInPhone("453380133")).toBe("+48453380133");
+  });
+});
+
+describe("whatsappDestination", () => {
+  it("sends Indian numbers as 91 plus 10 digits", () => {
+    expect(whatsappDestination("9596951981")).toBe("919596951981");
+    expect(whatsappDestination("+917006464310")).toBe("917006464310");
   });
 });
 

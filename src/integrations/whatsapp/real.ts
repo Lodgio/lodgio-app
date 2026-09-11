@@ -1,5 +1,6 @@
 import type { SendResult, TemplateRef, WhatsAppClient } from "@/integrations/types";
 import { env } from "@/lib/env";
+import { whatsappDestination } from "@/lib/phone";
 
 export class RealWhatsAppClient implements WhatsAppClient {
   private baseUrl = `https://graph.facebook.com/${env.whatsappGraphVersion}/${env.whatsappPhoneNumberId}/messages`;
@@ -22,7 +23,7 @@ export class RealWhatsAppClient implements WhatsAppClient {
 
     return this.post({
       messaging_product: "whatsapp",
-      to: to.replace(/\D/g, ""),
+      to: whatsappDestination(to),
       type: "template",
       template: templatePayload,
     });
@@ -31,7 +32,7 @@ export class RealWhatsAppClient implements WhatsAppClient {
   async sendText(to: string, body: string): Promise<SendResult> {
     return this.post({
       messaging_product: "whatsapp",
-      to: to.replace(/\D/g, ""),
+      to: whatsappDestination(to),
       type: "text",
       text: { preview_url: false, body },
     });

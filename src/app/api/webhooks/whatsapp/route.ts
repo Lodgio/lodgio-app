@@ -45,6 +45,12 @@ export async function POST(request: Request) {
             id: string;
             status: string;
             recipient_id?: string;
+            errors?: Array<{
+              code?: number;
+              title?: string;
+              message?: string;
+              error_data?: { details?: string };
+            }>;
           }>;
         };
       }>;
@@ -75,9 +81,19 @@ export async function POST(request: Request) {
 
         if (!logEntry) continue;
 
+        const failure = status.errors?.[0];
+        const errorText = failure
+          ? [failure.code != null ? `(#${failure.code})` : null, failure.title, failure.message, failure.error_data?.details]
+              .filter(Boolean)
+              .join(" ")
+          : null;
+
         await supabase
           .from("message_log")
-          .update({ status: mapped })
+          .update({
+            status: mapped,
+            ...(mapped === "failed" && errorText ? { error: errorText } : {}),
+          })
           .eq("id", logEntry.id);
 
         if (

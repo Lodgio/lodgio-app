@@ -39,6 +39,13 @@ export function normalizeInPhone(value: string): string | null {
   return null;
 }
 
+/** Digits Meta Cloud API expects in `to` (E.164 without +). */
+export function whatsappDestination(value: string): string {
+  const normalized = normalizeInPhone(value);
+  if (normalized) return digitsOnly(normalized);
+  return digitsOnly(value);
+}
+
 export function indianMobileLocal(value: string | null | undefined): string {
   if (!value) return "";
   const testNumber = matchTestWhatsApp(value);

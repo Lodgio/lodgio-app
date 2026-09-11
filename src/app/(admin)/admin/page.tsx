@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
-import { AdminShell } from "@/components/admin-shell";
 import { Card } from "@/components/dashboard-shell";
+import { NavLink } from "@/components/nav-link";
 import { createServiceClient } from "@/lib/supabase/service";
 import { approveGmailAccess } from "@/app/(admin)/admin/actions";
 import { SubmitButton } from "@/components/submit-button";
@@ -11,7 +10,7 @@ export default async function AdminHostsPage({
 }: {
   searchParams: Promise<{ deleted?: string; error?: string; saved?: string }>;
 }) {
-  const admin = await requireAdmin();
+  await requireAdmin();
   const params = await searchParams;
 
   const service = createServiceClient();
@@ -37,8 +36,7 @@ export default async function AdminHostsPage({
   const activeCount = (hosts ?? []).filter((h) => h.is_active).length;
 
   return (
-    <AdminShell title="Hosts" adminEmail={admin.email}>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {params.error ? (
           <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {decodeURIComponent(params.error)}
@@ -82,9 +80,9 @@ export default async function AdminHostsPage({
                     return (
                       <tr key={row.host_id} className="border-b border-zinc-100">
                         <td className="py-2 pr-4">
-                          <Link href={`/admin/hosts/${row.host_id}`} className="font-medium text-blue-600">
+                          <NavLink href={`/admin/hosts/${row.host_id}`} className="font-medium text-blue-600">
                             {pendingHost?.business_name || pendingHost?.slug || "Host"}
-                          </Link>
+                          </NavLink>
                         </td>
                         <td className="py-2 pr-4 font-medium">{row.gmail_requested_email}</td>
                         <td className="py-2 pr-4 text-zinc-500">
@@ -152,12 +150,9 @@ export default async function AdminHostsPage({
                         {new Date(h.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-2">
-                        <Link
-                          href={`/admin/hosts/${h.id}`}
-                          className="text-sm text-blue-600"
-                        >
+                        <NavLink href={`/admin/hosts/${h.id}`} className="text-sm text-blue-600">
                           Manage
-                        </Link>
+                        </NavLink>
                       </td>
                     </tr>
                   ))}
@@ -167,6 +162,5 @@ export default async function AdminHostsPage({
           )}
         </Card>
       </div>
-    </AdminShell>
   );
 }

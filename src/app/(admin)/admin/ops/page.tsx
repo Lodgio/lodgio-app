@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
-import { AdminShell } from "@/components/admin-shell";
 import { Card } from "@/components/dashboard-shell";
+import { NavLink } from "@/components/nav-link";
 import { createServiceClient } from "@/lib/supabase/service";
 
 function tone(severity: string) {
@@ -11,7 +10,7 @@ function tone(severity: string) {
 }
 
 export default async function AdminOpsPage() {
-  const admin = await requireAdmin();
+  await requireAdmin();
   const service = createServiceClient();
 
   const [{ data: events, error: eventsError }, { data: messages }, { data: hosts }] = await Promise.all([
@@ -32,8 +31,7 @@ export default async function AdminOpsPage() {
   };
 
   return (
-    <AdminShell title="Activity" adminEmail={admin.email}>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <Card title="Problems">
           <p className="mb-3 text-sm text-zinc-600">
             WhatsApp failures, Gmail disconnects, and emails we could not parse. Critical items can
@@ -63,9 +61,9 @@ export default async function AdminOpsPage() {
                     {event.host_id ? (
                       <>
                         {" · "}
-                        <Link href={`/admin/hosts/${event.host_id}`} className="underline">
+                        <NavLink href={`/admin/hosts/${event.host_id}`} className="underline">
                           Open host
-                        </Link>
+                        </NavLink>
                       </>
                     ) : null}
                   </p>
@@ -102,9 +100,9 @@ export default async function AdminOpsPage() {
                         {new Date(row.created_at).toLocaleString()}
                       </td>
                       <td className="py-2 pr-4">
-                        <Link href={`/admin/hosts/${row.host_id}`} className="text-blue-600">
+                        <NavLink href={`/admin/hosts/${row.host_id}`} className="text-blue-600">
                           {hostName(row.host_id)}
-                        </Link>
+                        </NavLink>
                       </td>
                       <td className="py-2 pr-4">
                         {row.recipient_type}
@@ -121,6 +119,5 @@ export default async function AdminOpsPage() {
           )}
         </Card>
       </div>
-    </AdminShell>
   );
 }

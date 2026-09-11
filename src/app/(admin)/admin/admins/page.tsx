@@ -1,5 +1,4 @@
 import { requireAdmin } from "@/lib/admin";
-import { AdminShell } from "@/components/admin-shell";
 import { Card } from "@/components/dashboard-shell";
 import { createServiceClient } from "@/lib/supabase/service";
 import { addAdmin, removeAdmin } from "@/app/(admin)/admin/actions";
@@ -25,8 +24,7 @@ export default async function AdminAdminsPage({
     .order("created_at", { ascending: true });
 
   return (
-    <AdminShell title="Admins" adminEmail={admin.email}>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {sp.error ? (
           <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {decodeURIComponent(sp.error)}
@@ -103,6 +101,5 @@ export default async function AdminAdminsPage({
           </div>
         </Card>
       </div>
-    </AdminShell>
   );
 }

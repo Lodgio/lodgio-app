@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
-import { AdminShell } from "@/components/admin-shell";
 import { Card } from "@/components/dashboard-shell";
+import { NavLink } from "@/components/nav-link";
 import { createServiceClient } from "@/lib/supabase/service";
 import {
   updateHost,
@@ -30,7 +29,7 @@ export default async function AdminHostDetailPage({
   params: Promise<{ hostId: string }>;
   searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const admin = await requireAdmin();
+  await requireAdmin();
   const { hostId } = await params;
   const sp = await searchParams;
 
@@ -53,11 +52,13 @@ export default async function AdminHostDetailPage({
   if (!host) notFound();
 
   return (
-    <AdminShell title={host.business_name || host.slug} adminEmail={admin.email}>
-      <div className="space-y-6">
-        <Link href="/admin" className="inline-block text-sm text-blue-600">
-          ← All hosts
-        </Link>
+    <div className="space-y-6">
+        <div>
+          <NavLink href="/admin" className="inline-block text-sm text-blue-600">
+            ← All hosts
+          </NavLink>
+          <h2 className="mt-2 text-lg font-semibold">{host.business_name || host.slug}</h2>
+        </div>
 
         {sp.error ? (
           <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -246,6 +247,5 @@ export default async function AdminHostDetailPage({
           </div>
         </Card>
       </div>
-    </AdminShell>
   );
 }

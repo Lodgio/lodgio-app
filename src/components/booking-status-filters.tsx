@@ -20,8 +20,8 @@ function Filters() {
       <NavLink
         href="/dashboard/bookings"
         exact
-        className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
-        activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] text-white"
+        className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-700"
+        activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] !text-white"
         pendingClassName="animate-pulse opacity-50"
       >
         All
@@ -31,8 +31,8 @@ function Filters() {
           key={s}
           href={`/dashboard/bookings?status=${s}`}
           exact
-          className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700"
-          activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] text-white"
+          className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs text-zinc-700"
+          activeClassName="border-[var(--lodgio-ink)] bg-[var(--lodgio-ink)] !text-white"
           pendingClassName="animate-pulse opacity-50"
         >
           {formatBookingStatus(s)}

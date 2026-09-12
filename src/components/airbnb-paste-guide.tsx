@@ -1,50 +1,16 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-
-const steps = [
-  {
-    title: "Open Messages, then settings",
-    detail: "In Airbnb, go to Messages and click the gear next to search.",
-    src: "/welcome/airbnb/01-messages.png",
-    alt: "Airbnb Messages with the settings gear highlighted",
-  },
-  {
-    title: "Open Manage quick replies",
-    detail: "That’s where Airbnb keeps automatic guest templates.",
-    src: "/welcome/airbnb/02-manage-quick-replies.png",
-    alt: "Airbnb Messaging settings with Manage quick replies highlighted",
-  },
-  {
-    title: "Open Booking confirmation",
-    detail: "Use this template, or create one if you don’t have it yet.",
-    src: "/welcome/airbnb/03-booking-confirmation.png",
-    alt: "Airbnb quick replies list with Booking confirmation highlighted",
-  },
-  {
-    title: "Paste your Lodgio check-in link",
-    detail: "Put the link from above in the message. Keep the Guest first name shortcode.",
-    src: "/welcome/airbnb/04-paste-link.png",
-    alt: "Airbnb template editor with the Lodgio check-in link highlighted",
-  },
-  {
-    title: "Set the notification time",
-    detail: "Choose 5 minutes after a guest books, or a custom time. Don’t leave it unscheduled.",
-    src: "/welcome/airbnb/05-schedule.png",
-    alt: "Airbnb schedule dialog with 5 minutes after a guest books selected",
-  },
-] as const;
-
-export const airbnbGuideImages = steps.map((step) => step.src);
+import { airbnbGuideSteps } from "@/components/airbnb-paste-guide-data";
 
 export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
   const [active, setActive] = useState(0);
-  const current = steps[active];
+  const current = airbnbGuideSteps[active];
 
   return (
     <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)]">
       <ol className="order-1 space-y-2">
-        {steps.map((step, index) => {
+        {airbnbGuideSteps.map((step, index) => {
           const selected = index === active;
           return (
             <li key={step.src}>
@@ -85,7 +51,7 @@ export function AirbnbPasteGuide({ children }: { children?: ReactNode }) {
       </ol>
 
       <figure className="order-2 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 lg:sticky lg:top-6 lg:row-span-2 lg:min-h-[20rem]">
-        {steps.map((step, index) => (
+        {airbnbGuideSteps.map((step, index) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={step.src}

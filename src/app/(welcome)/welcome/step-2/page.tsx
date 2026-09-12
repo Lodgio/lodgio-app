@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { CopyButton } from "@/components/copy-button";
 import { SubmitButton } from "@/components/submit-button";
-import { AirbnbPasteGuide, airbnbGuideImages } from "@/components/airbnb-paste-guide";
+import { AirbnbPasteGuide } from "@/components/airbnb-paste-guide";
+import { airbnbGuideImages } from "@/components/airbnb-paste-guide-data";
 import { confirmCheckinLink } from "@/app/(welcome)/welcome/actions";
 
 export default async function WelcomeStep2() {

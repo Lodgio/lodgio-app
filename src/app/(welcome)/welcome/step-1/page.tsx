@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
@@ -64,12 +63,6 @@ export default async function WelcomeStep1({
           <p className="mt-2 text-xs text-zinc-500">Didn&apos;t get it? Check the number and resend.</p>
         </div>
       ) : null}
-
-      <p className="mt-6 text-center text-sm">
-        <Link href="/dashboard/onboarding?step=1" className="link">
-          Skip for now and connect Gmail
-        </Link>
-      </p>
     </div>
   );
 }

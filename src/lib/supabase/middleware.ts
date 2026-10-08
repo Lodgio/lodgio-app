@@ -115,7 +115,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Welcome (WhatsApp + check-in link) is optional and does not block the dashboard.
+  // Welcome (WhatsApp + check-in link) runs before the dashboard.
   if (user && (isDashboard || isWelcome)) {
     const state = await getHostGateState(user);
     // Deactivated hosts are signed out and cannot use the app.
@@ -124,6 +124,11 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("deactivated", "1");
+      return NextResponse.redirect(url);
+    }
+    if (state?.welcomePending && isDashboard) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/welcome";
       return NextResponse.redirect(url);
     }
     if (state && !state.welcomePending && isWelcome) {

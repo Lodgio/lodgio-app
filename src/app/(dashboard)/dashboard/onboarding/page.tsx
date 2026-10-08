@@ -253,7 +253,7 @@ export default async function OnboardingPage({
       ? {
           step: 1,
           title: "Connect Gmail",
-          detail: "Enter the inbox that receives Airbnb confirmation emails, then connect it.",
+          detail: "Connect the inbox that receives Airbnb confirmation emails.",
         }
       : null,
     !hasProperties

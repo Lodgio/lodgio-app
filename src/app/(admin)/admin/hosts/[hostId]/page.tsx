@@ -108,8 +108,8 @@ export default async function AdminHostDetailPage({
         {settings?.gmail_access_status === "pending_review" ? (
           <Card title="Gmail access request">
             <p className="mb-3 text-sm text-zinc-600">
-              Add <strong>{settings.gmail_requested_email}</strong> in Google Cloud → OAuth consent
-              screen → Test users, then approve.
+              Older request for <strong>{settings.gmail_requested_email}</strong>. Hosts can connect
+              Gmail without this approval.
             </p>
             <form action={approveGmailAccess}>
               <input type="hidden" name="host_id" value={host.id} />

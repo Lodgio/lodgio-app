@@ -70,7 +70,8 @@ export const env = {
   useMockSheets: flag("USE_MOCK_SHEETS", false),
   useMockSms: flag("USE_MOCK_SMS", true),
   // While the Google OAuth app is in Testing, hosts must be allowlisted first.
-  gmailAllowlistRequired: flag("GMAIL_ALLOWLIST_REQUIRED", true),
+  /** Unused. OAuth is published; Connect Gmail is not gated on test users. */
+  gmailAllowlistRequired: flag("GMAIL_ALLOWLIST_REQUIRED", false),
 
   demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === "phase12" ? "phase12" : "full",
 };

@@ -34,7 +34,7 @@ export async function signUp(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(signInError.message)}`);
   }
 
-  redirect("/welcome");
+  redirect("/dashboard/onboarding?step=1");
 }
 
 export async function signIn(formData: FormData) {

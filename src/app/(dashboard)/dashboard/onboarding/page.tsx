@@ -68,15 +68,10 @@ export default async function OnboardingPage({
 
   const gmailCard = (
     <Card title={phase12 ? "Connect Gmail" : "1. Connect Gmail"}>
-      {params.gmail === "requested" ? (
-        <p className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-          Inbox submitted. An admin will allow it, then you can connect.
-        </p>
-      ) : null}
       {params.gmail === "denied" ? (
         <p className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          Google blocked this inbox because it is not on the test-user list yet. Wait for admin
-          approval, then try Connect again.
+          Google sign-in was cancelled. Connect again. If you see an unverified-app warning, choose
+          Advanced, then Go to lodgio.in.
         </p>
       ) : null}
       {effectiveStep === 1 ? errorBanner : null}
@@ -98,9 +93,7 @@ export default async function OnboardingPage({
         requestedEmail={settings?.gmail_requested_email ?? null}
         variant="onboarding"
       />
-      {gmail?.status === "active" ||
-      settings?.gmail_access_status === "approved" ||
-      settings?.gmail_access_status === "connected" ? (
+      {gmail?.status === "active" ? (
         <div className="mt-4">
           {phase12 ? (
             <Link href="/dashboard/bookings" className="btn-primary inline-block">

@@ -57,8 +57,8 @@ export default async function AdminHostsPage({
           <div className="mb-3">
             <h2 className="text-base font-semibold">Gmail access requests</h2>
             <p className="mt-1 text-sm text-zinc-600">
-              Add the address in Google Cloud → OAuth consent screen → Test users, then approve
-              here.
+              Hosts connect Gmail themselves. This list is only for older requests still marked
+              pending.
             </p>
           </div>
           {(pendingSettings ?? []).length === 0 ? (

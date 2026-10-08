@@ -1,18 +1,18 @@
-import { env } from "@/lib/env";
-
 export type GmailAccessStatus = "none" | "pending_review" | "approved" | "connected";
 
+/**
+ * The Google OAuth app is published. Test-user approval no longer gates Connect.
+ * Kept so older call sites stay, but the manual allowlist is off.
+ */
 export function isGmailAllowlistRequired(): boolean {
-  return env.gmailAllowlistRequired;
+  return false;
 }
 
 export function canStartGmailOAuth(
-  status: GmailAccessStatus | null | undefined,
-  hasActiveConnection: boolean
+  _status: GmailAccessStatus | null | undefined,
+  _hasActiveConnection: boolean
 ): boolean {
-  if (!isGmailAllowlistRequired()) return true;
-  if (hasActiveConnection) return true;
-  return status === "approved" || status === "connected";
+  return true;
 }
 
 export function normalizeGmailAddress(value: string): string {

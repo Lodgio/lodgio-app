@@ -205,7 +205,7 @@ export type Database = {
           host_id: string
           id: string
           last_synced_at: string | null
-          refresh_token: string
+          refresh_token: string | null
           status: Database["public"]["Enums"]["gmail_connection_status"]
           sync_cursor: string | null
           updated_at: string
@@ -217,7 +217,7 @@ export type Database = {
           host_id: string
           id?: string
           last_synced_at?: string | null
-          refresh_token: string
+          refresh_token?: string | null
           status?: Database["public"]["Enums"]["gmail_connection_status"]
           sync_cursor?: string | null
           updated_at?: string
@@ -229,7 +229,7 @@ export type Database = {
           host_id?: string
           id?: string
           last_synced_at?: string | null
-          refresh_token?: string
+          refresh_token?: string | null
           status?: Database["public"]["Enums"]["gmail_connection_status"]
           sync_cursor?: string | null
           updated_at?: string

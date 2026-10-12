@@ -138,8 +138,11 @@ export async function GET(request: Request) {
       refreshTokenEnc = encryptToken(exchanged.refreshToken);
     }
 
-    // Verify we can decrypt existing if no new refresh token
+    // Verify we can decrypt the stored token when Google does not send a new one.
     if (!exchanged.refreshToken) {
+      if (!existing.refresh_token) {
+        throw new Error("No refresh token returned");
+      }
       decryptToken(existing.refresh_token);
     }
 
@@ -166,7 +169,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${base}/dashboard/settings?sheets=connected`);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("google_oauth_failed", state.purpose, message);
+    console.error(
+      "google_oauth_failed",
+      state.purpose,
+      message.length > 160 ? "oauth_failed" : message
+    );
     return NextResponse.redirect(
       state.purpose === "sheets"
         ? `${base}/dashboard/settings?sheets=error`

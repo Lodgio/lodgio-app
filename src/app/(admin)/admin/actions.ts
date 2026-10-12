@@ -152,6 +152,9 @@ export async function deleteHost(formData: FormData) {
     redirect(`/admin?error=${encodeURIComponent(findError?.message ?? "Host not found")}`);
   }
 
+  const { disconnectHostGoogle } = await import("@/services/google/disconnect-google");
+  await disconnectHostGoogle(hostId);
+
   const { error: delError } = await service.auth.admin.deleteUser(host!.auth_user_id);
   if (delError) {
     redirect(`/admin/hosts/${hostId}?error=${encodeURIComponent(delError.message)}`);

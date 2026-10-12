@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import type { Cursor, GmailClient, HostConnection, RawEmail } from "@/integrations/types";
 import { IntegrationError } from "@/integrations/types";
+import { isRejectedGoogleToken } from "@/integrations/google/token-errors";
 import { extractGmailApiBody, gmailHeader, type GmailApiPart } from "@/integrations/gmail/email-utils";
 import { env } from "@/lib/env";
 
@@ -70,11 +71,10 @@ export class RealGmailClient implements GmailClient {
         nextCursor: { value: latestTimestamp ? String(latestTimestamp) : since.value },
       };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (message.includes("invalid_grant")) {
-        throw new IntegrationError("Gmail token expired", "auth", error);
+      if (isRejectedGoogleToken(error)) {
+        throw new IntegrationError("Gmail token expired", "auth");
       }
-      throw new IntegrationError(`Gmail API error: ${message}`, "transient", error);
+      throw new IntegrationError("Gmail API error", "transient");
     }
   }
 }

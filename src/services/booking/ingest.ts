@@ -38,6 +38,9 @@ export async function pollGmailConnection(connectionId: string) {
   let ingested = 0;
 
   try {
+    if (!connection.refresh_token) {
+      throw new IntegrationError("Missing Gmail refresh token", "auth");
+    }
     const refreshToken = decryptToken(connection.refresh_token);
     const { emails, nextCursor } = await gmail.listAirbnbMessages(
       { hostId: connection.host_id, refreshToken },
@@ -219,15 +222,13 @@ export async function pollGmailConnection(connectionId: string) {
     await exportPendingBookingsForHost(connection.host_id);
   } catch (error) {
     if (error instanceof IntegrationError && error.kind === "auth") {
-      await supabase
-        .from("gmail_connections")
-        .update({ status: "needs_reconnect" })
-        .eq("id", connection.id);
+      const { disconnectHostGoogle } = await import("@/services/google/disconnect-google");
+      await disconnectHostGoogle(connection.host_id);
       await recordOpsEvent({
         severity: "critical",
         kind: "gmail_needs_reconnect",
-        title: "Gmail needs reconnect",
-        detail: `${connection.email_address} lost Google access`,
+        title: "Gmail access revoked",
+        detail: `${connection.email_address} lost Google access. Stored tokens were deleted.`,
         hostId: connection.host_id,
         dedupeKey: `gmail_needs_reconnect:${connection.id}`,
         payload: { email: connection.email_address },

@@ -157,7 +157,7 @@ export type Database = {
           id: string;
           host_id: string;
           email_address: string;
-          refresh_token: string;
+          refresh_token: string | null;
           granted_scopes: string;
           status: GmailConnectionStatus;
           last_synced_at: string | null;
@@ -169,7 +169,7 @@ export type Database = {
           id?: string;
           host_id: string;
           email_address: string;
-          refresh_token: string;
+          refresh_token?: string | null;
           granted_scopes?: string;
           status?: GmailConnectionStatus;
           last_synced_at?: string | null;
@@ -181,7 +181,7 @@ export type Database = {
           id?: string;
           host_id?: string;
           email_address?: string;
-          refresh_token?: string;
+          refresh_token?: string | null;
           granted_scopes?: string;
           status?: GmailConnectionStatus;
           last_synced_at?: string | null;

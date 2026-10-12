@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import type { BookingRow, HostConnection, SheetsClient } from "@/integrations/types";
 import { createOAuthClientFromRefreshToken } from "@/integrations/google/oauth";
+import { isRejectedGoogleToken } from "@/integrations/google/token-errors";
 
 const BOOKINGS_RANGE = "Bookings!A1";
 
@@ -69,12 +70,13 @@ export class RealSheetsClient implements SheetsClient {
         },
       });
     } catch (error) {
-      if (isInsufficientScopeError(error)) {
-        throw new InsufficientSheetsScopeError(
-          error instanceof Error ? error.message : "Insufficient Google Sheets scope"
-        );
+      if (isRejectedGoogleToken(error)) {
+        throw new Error("invalid_grant");
       }
-      throw error;
+      if (isInsufficientScopeError(error)) {
+        throw new InsufficientSheetsScopeError("Insufficient Google Sheets scope");
+      }
+      throw new Error("Google Sheets request failed");
     }
   }
 }

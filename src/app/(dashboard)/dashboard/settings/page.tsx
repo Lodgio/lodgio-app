@@ -35,7 +35,10 @@ export default async function SettingsPage({
   const [{ data: host }, { data: settings }, { data: gmail }] = await Promise.all([
     supabase.from("hosts").select("*").single(),
     supabase.from("host_settings").select("*").single(),
-    supabase.from("gmail_connections").select("*").maybeSingle(),
+    supabase
+      .from("gmail_connections")
+      .select("status, email_address, granted_scopes, last_synced_at")
+      .maybeSingle(),
   ]);
 
   const sheetsEnabled = Boolean(settings?.sheets_export_enabled);

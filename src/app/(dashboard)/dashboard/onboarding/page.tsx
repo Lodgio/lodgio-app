@@ -41,7 +41,7 @@ export default async function OnboardingPage({
   }
 
   const [{ data: gmail }, { data: properties }, { data: caretakers }] = await Promise.all([
-    supabase.from("gmail_connections").select("*").maybeSingle(),
+    supabase.from("gmail_connections").select("status, email_address").maybeSingle(),
     supabase.from("properties").select("*").order("name"),
     supabase.from("caretakers").select("*").order("name"),
   ]);

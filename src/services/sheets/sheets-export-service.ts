@@ -11,6 +11,8 @@ import {
   isInsufficientScopeError,
 } from "@/integrations/sheets/real";
 import { spreadsheetUrl } from "@/services/sheets/sheets-links";
+import { isRejectedGoogleToken, googleErrorCode } from "@/integrations/google/token-errors";
+import { disconnectHostGoogle } from "@/services/google/disconnect-google";
 
 const HEADER_ROW = [
   "Booking ID",
@@ -48,7 +50,7 @@ async function getHostGoogleAuth(hostId: string) {
     .eq("status", "active")
     .maybeSingle();
 
-  if (!connection) {
+  if (!connection || !connection.refresh_token) {
     throw new InsufficientSheetsScopeError("Connect Gmail before enabling Sheets export");
   }
   if (!scopesIncludeDriveFile(connection.granted_scopes)) {
@@ -115,13 +117,15 @@ export async function ensureHostSpreadsheet(hostId: string): Promise<{
 
     return { spreadsheetId, url: spreadsheetUrl(spreadsheetId) };
   } catch (error) {
+    if (isRejectedGoogleToken(error)) {
+      await disconnectHostGoogle(hostId);
+      throw new Error("Google access was revoked. Connect Gmail again.");
+    }
     if (isInsufficientScopeError(error) || error instanceof InsufficientSheetsScopeError) {
       await markSheetsNeedsReconnect(hostId);
-      throw new InsufficientSheetsScopeError(
-        error instanceof Error ? error.message : "Insufficient Google Sheets scope"
-      );
+      throw new InsufficientSheetsScopeError("Insufficient Google Sheets scope");
     }
-    throw error;
+    throw new Error("Could not create the export sheet");
   }
 }
 
@@ -186,12 +190,17 @@ export async function exportBookingToSheets(bookingId: string) {
       .update({ sheets_exported_at: new Date().toISOString() })
       .eq("id", bookingId);
   } catch (error) {
-    if (error instanceof InsufficientSheetsScopeError || isInsufficientScopeError(error)) {
-      await markSheetsNeedsReconnect(booking.host_id);
-      console.error("sheets_export_scope_error", bookingId, error);
+    if (isRejectedGoogleToken(error)) {
+      await disconnectHostGoogle(booking.host_id);
+      console.error("sheets_export_token_revoked", bookingId);
       return;
     }
-    console.error("sheets_export_failed", bookingId, error);
+    if (error instanceof InsufficientSheetsScopeError || isInsufficientScopeError(error)) {
+      await markSheetsNeedsReconnect(booking.host_id);
+      console.error("sheets_export_scope_error", bookingId, googleErrorCode(error));
+      return;
+    }
+    console.error("sheets_export_failed", bookingId, googleErrorCode(error));
   }
 }
 

@@ -119,6 +119,8 @@ export async function disableSheetsExport() {
   const host = await getCurrentHost();
   if (!host) throw new Error("Unauthorized");
 
+  // Sheets uses the same Google refresh token as Gmail. Turning export off
+  // must not revoke that token, or Gmail would stop working too.
   const supabase = await createClient();
   await supabase
     .from("host_settings")
@@ -421,13 +423,11 @@ export async function revokeGmailConnection() {
   const host = await getCurrentHost();
   if (!host) throw new Error("Unauthorized");
 
-  const supabase = await createClient();
-  await supabase
-    .from("gmail_connections")
-    .update({ status: "revoked" })
-    .eq("host_id", host.id);
+  const { disconnectHostGoogle } = await import("@/services/google/disconnect-google");
+  await disconnectHostGoogle(host.id);
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
 }
 
 export async function syncGmailNow() {

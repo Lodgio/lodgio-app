@@ -2,9 +2,11 @@
 
 import {
   assignBookingProperty,
+  deleteBooking,
   sendBookingMessages,
 } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { bookingStatusColor, formatBookingStatus } from "@/lib/demo";
+import { formatStayRange } from "@/lib/stay-date";
 import { SubmitButton } from "@/components/submit-button";
 import { ViewGuestIdButton } from "@/components/view-guest-id-button";
 import type { BookingStatus } from "@/types/database";
@@ -55,7 +57,7 @@ export function BookingRow({
       <td className="py-3 pr-4">
         <div className="font-medium">{row.airbnbBookingId}</div>
         <div className="text-zinc-500">
-          {row.checkIn} → {row.checkOut}
+          {formatStayRange(row.checkIn, row.checkOut)}
         </div>
       </td>
       <td className="py-3 pr-4">
@@ -121,6 +123,21 @@ export function BookingRow({
             </SubmitButton>
           </form>
         ) : null}
+        <form
+          action={deleteBooking}
+          className="mt-2"
+          onSubmit={(event) => {
+            const label = row.airbnbBookingId || "this booking";
+            if (!window.confirm(`Delete ${label}? This cannot be undone.`)) {
+              event.preventDefault();
+            }
+          }}
+        >
+          <input type="hidden" name="booking_id" value={row.id} />
+          <SubmitButton className="text-xs text-red-700 underline" pendingLabel="Deleting…">
+            Delete
+          </SubmitButton>
+        </form>
       </td>
     </tr>
   );

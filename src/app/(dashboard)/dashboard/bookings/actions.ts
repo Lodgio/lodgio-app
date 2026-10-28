@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHost } from "@/lib/host";
 import { retryPendingMessagingForHost } from "@/services/booking/property-booking-service";
@@ -63,4 +64,26 @@ export async function sendBookingMessages(formData: FormData) {
   await processMatchedBooking(bookingId);
   revalidatePath("/dashboard/bookings");
   revalidatePath("/dashboard");
+}
+
+export async function deleteBooking(formData: FormData) {
+  const host = await getCurrentHost();
+  if (!host) throw new Error("Unauthorized");
+
+  const bookingId = String(formData.get("booking_id") ?? "");
+  if (!bookingId) throw new Error("Missing booking");
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId)
+    .eq("host_id", host.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/dashboard/bookings");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/submissions");
+  redirect("/dashboard/bookings?deleted=1");
 }

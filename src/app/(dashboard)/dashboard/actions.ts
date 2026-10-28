@@ -263,6 +263,7 @@ export async function updateProperty(formData: FormData) {
   revalidatePath("/dashboard/properties");
   revalidatePath("/dashboard/caretakers");
   revalidatePath("/dashboard/onboarding");
+  redirect("/dashboard/properties?saved=1");
 }
 
 export async function updateCaretaker(formData: FormData) {

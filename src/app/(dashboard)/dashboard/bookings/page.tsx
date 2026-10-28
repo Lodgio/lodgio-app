@@ -23,9 +23,9 @@ function latestRecipientStatus(
 export default async function BookingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; synced?: string; error?: string }>;
+  searchParams: Promise<{ status?: string; synced?: string; error?: string; deleted?: string }>;
 }) {
-  const { status, synced, error } = await searchParams;
+  const { status, synced, error, deleted } = await searchParams;
   const phase12 = isPhase12Demo();
   const host = await getCurrentHost();
   const supabase = await createClient();
@@ -129,6 +129,12 @@ export default async function BookingsPage({
       {error ? (
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {decodeURIComponent(error)}
+        </p>
+      ) : null}
+
+      {deleted === "1" ? (
+        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          Booking deleted.
         </p>
       ) : null}
 

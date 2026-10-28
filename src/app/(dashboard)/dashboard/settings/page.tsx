@@ -2,14 +2,12 @@ import { Card, StatusBadge } from "@/components/dashboard-shell";
 import { createClient } from "@/lib/supabase/server";
 import {
   updateHostProfile,
-  updateHostSettings,
   revokeGmailConnection,
   createExportSheet,
   syncPendingSheetsExport,
   disableSheetsExport,
 } from "@/app/(dashboard)/dashboard/actions";
 import { isPhase12Demo } from "@/lib/demo";
-import { isWhatsAppEnabled } from "@/lib/features";
 import { SubmitButton } from "@/components/submit-button";
 import { scopesIncludeDriveFile, spreadsheetUrl } from "@/services/sheets/sheets-links";
 import { GmailAccessPanel } from "@/components/gmail-access-panel";
@@ -30,7 +28,6 @@ export default async function SettingsPage({
 }) {
   const params = await searchParams;
   const phase12 = isPhase12Demo();
-  const whatsappEnabled = isWhatsAppEnabled();
   const supabase = await createClient();
   const [{ data: host }, { data: settings }, { data: gmail }] = await Promise.all([
     supabase.from("hosts").select("*").single(),
@@ -218,38 +215,6 @@ export default async function SettingsPage({
                   </form>
                 </div>
               ) : null}
-            </Card>
-
-            <Card title="Integrations">
-              <form action={updateHostSettings} className="space-y-3">
-                <select
-                  name="default_language"
-                  defaultValue={settings?.default_language ?? "en"}
-                  className="field"
-                >
-                  <option value="en">English</option>
-                  <option value="hi">Hindi</option>
-                </select>
-                {whatsappEnabled ? (
-                  <>
-                    <input
-                      name="whatsapp_phone_number_id"
-                      defaultValue={settings?.whatsapp_phone_number_id ?? ""}
-                      placeholder="WhatsApp Phone Number ID"
-                      className="field"
-                    />
-                    <input
-                      name="whatsapp_waba_id"
-                      defaultValue={settings?.whatsapp_waba_id ?? ""}
-                      placeholder="WhatsApp WABA ID"
-                      className="field"
-                    />
-                  </>
-                ) : null}
-                <SubmitButton className="btn-primary" pendingLabel="Saving…">
-                  Save settings
-                </SubmitButton>
-              </form>
             </Card>
           </>
         ) : null}

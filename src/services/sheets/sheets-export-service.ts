@@ -13,6 +13,8 @@ import {
 import { spreadsheetUrl } from "@/services/sheets/sheets-links";
 import { isRejectedGoogleToken, googleErrorCode } from "@/integrations/google/token-errors";
 import { disconnectHostGoogle } from "@/services/google/disconnect-google";
+import { bookingsSheetFormatRequests } from "@/services/sheets/sheet-format";
+import { formatCreatedAt, formatStayDate } from "@/lib/stay-date";
 
 const HEADER_ROW = [
   "Booking ID",
@@ -106,6 +108,16 @@ export async function ensureHostSpreadsheet(hostId: string): Promise<{
       requestBody: { values: [HEADER_ROW] },
     });
 
+    const sheetId = created.data.sheets?.[0]?.properties?.sheetId ?? 0;
+    try {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: { requests: bookingsSheetFormatRequests(sheetId, HEADER_ROW.length) },
+      });
+    } catch (formatError) {
+      console.error("sheets_format_failed", spreadsheetId, googleErrorCode(formatError));
+    }
+
     await supabase
       .from("host_settings")
       .update({
@@ -172,16 +184,16 @@ export async function exportBookingToSheets(bookingId: string) {
         bookingId: booking.airbnb_booking_id,
         guestName: guest?.name ?? "",
         propertyName: property?.name ?? "",
-        checkIn: booking.check_in,
-        checkOut: booking.check_out,
+        checkIn: formatStayDate(booking.check_in),
+        checkOut: formatStayDate(booking.check_out),
         nights: booking.nights,
         guestCount: booking.guest_count,
         whatsappNumber: guest?.whatsapp_number ?? "",
         amountPaidByGuest: booking.amount_paid_by_guest,
         amountPayableToHost: booking.amount_payable_to_host,
         amountPayableToAirbnb: booking.amount_payable_to_airbnb,
-        status: booking.status,
-        createdAt: booking.created_at,
+        status: booking.status.replaceAll("_", " "),
+        createdAt: formatCreatedAt(booking.created_at),
       }
     );
 

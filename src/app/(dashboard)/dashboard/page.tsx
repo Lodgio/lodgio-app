@@ -8,6 +8,7 @@ import { GmailAccessPanel } from "@/components/gmail-access-panel";
 import { hostHasActiveGmail } from "@/lib/host";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { formatStayRange } from "@/lib/stay-date";
 
 export default async function DashboardPage({
   searchParams,
@@ -206,7 +207,7 @@ export default async function DashboardPage({
                     <tr key={b.id} className="border-b border-zinc-100">
                       <td className="py-2 pr-4 font-medium">{b.airbnb_booking_id}</td>
                       <td className="py-2 pr-4">
-                        {b.check_in} → {b.check_out}
+                        {formatStayRange(b.check_in, b.check_out)}
                       </td>
                       {phase12 ? (
                         <td className="py-2 pr-4 text-zinc-600">

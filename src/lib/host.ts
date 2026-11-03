@@ -4,15 +4,14 @@ import type { Tables } from "@/types/database";
 
 export const getCurrentHost = cache(async (): Promise<Tables<"hosts"> | null> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
+  if (!userId) return null;
 
   const { data: host } = await supabase
     .from("hosts")
     .select("*")
-    .eq("auth_user_id", user.id)
+    .eq("auth_user_id", userId)
     .single();
 
   return host;

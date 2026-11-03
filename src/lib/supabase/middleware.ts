@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { env } from "@/lib/env";
 
@@ -10,7 +9,9 @@ import { env } from "@/lib/env";
  * defense only; the authoritative check is requireAdmin() in the /admin layout.
  * Allows the bootstrap admin through even before their admins row exists.
  */
-async function isAdminUser(user: User): Promise<boolean> {
+type SessionUser = { id: string; email: string | null };
+
+async function isAdminUser(user: SessionUser): Promise<boolean> {
   const email = (user.email ?? "").trim().toLowerCase();
   if (env.adminBootstrapEmail && email === env.adminBootstrapEmail) {
     return true;
@@ -31,23 +32,23 @@ async function isAdminUser(user: User): Promise<boolean> {
  * a host (e.g. an admin-only account), in which case no host gating applies.
  */
 async function getHostGateState(
-  user: User
+  user: SessionUser
 ): Promise<{ isDeactivated: boolean; welcomePending: boolean } | null> {
   const service = createClient<Database>(env.supabaseUrl(), env.supabaseSecretKey(), {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const { data: host } = await service
     .from("hosts")
-    .select("id, is_active")
+    .select("id, is_active, host_settings(whatsapp_verified_at, checkin_link_confirmed_at)")
     .eq("auth_user_id", user.id)
     .maybeSingle();
   if (!host) return null;
 
-  const { data: settings } = await service
-    .from("host_settings")
-    .select("whatsapp_verified_at, checkin_link_confirmed_at")
-    .eq("host_id", host.id)
-    .maybeSingle();
+  const joined = (host as { host_settings?: unknown }).host_settings;
+  const settings = (Array.isArray(joined) ? joined[0] : joined) as
+    | { whatsapp_verified_at: string | null; checkin_link_confirmed_at: string | null }
+    | null
+    | undefined;
 
   return {
     isDeactivated: host.is_active === false,
@@ -97,9 +98,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims;
+  const user: SessionUser | null = claims?.sub
+    ? { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null }
+    : null;
 
   const isHome = request.nextUrl.pathname === "/";
   const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");

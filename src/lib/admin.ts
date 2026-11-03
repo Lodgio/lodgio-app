@@ -1,9 +1,10 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { env } from "@/lib/env";
+
+type SessionUser = { id: string; email: string | null };
 
 export type CurrentAdmin = {
   authUserId: string;
@@ -20,10 +21,13 @@ export type CurrentAdmin = {
  */
 export const getCurrentAdmin = cache(async (): Promise<CurrentAdmin | null> => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) return null;
+  const user: SessionUser = {
+    id: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : null,
+  };
 
   const service = createServiceClient();
   const { data: existing } = await service
@@ -40,7 +44,7 @@ export const getCurrentAdmin = cache(async (): Promise<CurrentAdmin | null> => {
   return bootstrapped;
 });
 
-async function maybeBootstrapAdmin(user: User): Promise<CurrentAdmin | null> {
+async function maybeBootstrapAdmin(user: SessionUser): Promise<CurrentAdmin | null> {
   const bootstrapEmail = env.adminBootstrapEmail;
   const userEmail = (user.email ?? "").trim().toLowerCase();
   if (!bootstrapEmail || !userEmail || userEmail !== bootstrapEmail) {

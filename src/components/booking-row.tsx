@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   assignBookingProperty,
   deleteBooking,
@@ -52,8 +53,11 @@ export function BookingRow({
   row: BookingRowModel;
   properties: PropertyOption[];
 }) {
+  const [deleting, setDeleting] = useState(false);
   return (
-    <tr className="border-b border-zinc-100 align-top">
+    <tr
+      className={`border-b border-zinc-100 align-top ${deleting ? "pointer-events-none opacity-40" : ""}`}
+    >
       <td className="py-3 pr-4">
         <div className="font-medium">{row.airbnbBookingId}</div>
         <div className="text-zinc-500">
@@ -130,7 +134,9 @@ export function BookingRow({
             const label = row.airbnbBookingId || "this booking";
             if (!window.confirm(`Delete ${label}? This cannot be undone.`)) {
               event.preventDefault();
+              return;
             }
+            setDeleting(true);
           }}
         >
           <input type="hidden" name="booking_id" value={row.id} />

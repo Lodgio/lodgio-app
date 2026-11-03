@@ -88,6 +88,7 @@ export function NavLink({
   return (
     <Link
       href={href}
+      prefetch={false}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
           return;

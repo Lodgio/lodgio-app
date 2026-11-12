@@ -5,6 +5,9 @@ import { getBookingMessagingReadiness } from "@/services/booking/property-bookin
 import { SubmitButton } from "@/components/submit-button";
 import { IndianPhoneField } from "@/components/indian-phone-field";
 import { LodgioLogo } from "@/components/lodgio-logo";
+import { GuestIdFileField } from "@/components/guest-id-file-field";
+
+export const maxDuration = 60;
 
 /** Pilot: hide stay-details. ID upload is required. */
 const SHOW_ID_VERIFICATION = true;
@@ -153,18 +156,7 @@ export default async function GuestCheckinPage({
                 </select>
               </FormField>
 
-              <FormField
-                label="Photo or PDF of your ID"
-                hint="Required. JPEG, PNG, WebP, PDF, or an iPhone photo, up to 10 MB."
-              >
-                <input
-                  name="idDocument"
-                  type="file"
-                  required
-                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf,.heic,.heif"
-                  className="field file:mr-3 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-zinc-700"
-                />
-              </FormField>
+              <GuestIdFileField />
             </FormSection>
           ) : null}
 

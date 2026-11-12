@@ -7,8 +7,8 @@ export async function prepareGuestIdUpload(file: File): Promise<{
   contentType: string;
   extension: string;
 }> {
-  if (file.size > 10 * 1024 * 1024) {
-    throw new Error("ID file must be 10 MB or smaller");
+  if (file.size > 4 * 1024 * 1024) {
+    throw new Error("That file is too large. Take a photo of the ID, or send a JPEG under 4 MB.");
   }
 
   const name = file.name.toLowerCase();

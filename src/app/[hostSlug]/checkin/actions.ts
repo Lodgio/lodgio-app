@@ -116,7 +116,12 @@ export async function submitGuestForm(formData: FormData) {
     fail(parsed.data.hostSlug, formData, error?.message ?? "Submission failed. Please try again.");
   }
 
-  const bookingId = await matchSubmission(submission.id);
+  let bookingId: string | null = null;
+  try {
+    bookingId = await matchSubmission(submission.id);
+  } catch (error) {
+    console.error("guest_form_match_failed", submission.id, error instanceof Error ? error.message : "failed");
+  }
   const successParams: Record<string, string> = { success: "1" };
   if (bookingId) successParams.bookingId = bookingId;
   redirect(checkinPath(parsed.data.hostSlug, successParams));

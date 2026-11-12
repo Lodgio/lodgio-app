@@ -1,44 +1,10 @@
 import { notFound } from "next/navigation";
 import { getHostBySlug } from "@/lib/host";
-import { submitGuestForm } from "@/app/[hostSlug]/checkin/actions";
 import { getBookingMessagingReadiness } from "@/services/booking/property-booking-service";
-import { SubmitButton } from "@/components/submit-button";
-import { IndianPhoneField } from "@/components/indian-phone-field";
 import { LodgioLogo } from "@/components/lodgio-logo";
-import { GuestIdFileField } from "@/components/guest-id-file-field";
+import { GuestCheckinForm } from "@/components/guest-checkin-form";
 
 export const maxDuration = 60;
-
-/** Pilot: hide stay-details. ID upload is required. */
-const SHOW_ID_VERIFICATION = true;
-const SHOW_STAY_DETAILS = false;
-
-function FormField({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-zinc-800">{label}</label>
-      {hint ? <p className="text-xs leading-relaxed text-zinc-500">{hint}</p> : null}
-      {children}
-    </div>
-  );
-}
-
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4 border-t border-zinc-100 pt-5 first:border-t-0 first:pt-0">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
-}
 
 export default async function GuestCheckinPage({
   params,
@@ -102,104 +68,15 @@ export default async function GuestCheckinPage({
           </p>
         ) : null}
 
-        <form action={submitGuestForm} className="mt-6 space-y-5" encType="multipart/form-data">
-          <input type="hidden" name="hostId" value={host.id} />
-          <input type="hidden" name="hostSlug" value={hostSlug} />
-
-          <FormSection title="How we can reach you">
-            <FormField label="Your full name" hint="As it appears on your Airbnb booking.">
-              <input
-                name="name"
-                required
-                defaultValue={query.name ?? ""}
-                placeholder="e.g. Manish Kumar"
-                className="field"
-              />
-            </FormField>
-
-            <IndianPhoneField
-              name="whatsappNumber"
-              label="WhatsApp number"
-              required
-              defaultValue={query.phone}
-              hint="This must be a WhatsApp number — we send check-in details there."
-            />
-          </FormSection>
-
-          <FormSection title="Your booking">
-            <FormField
-              label="Airbnb confirmation code"
-              hint='Find this in your Airbnb confirmation email or trip details — usually 10 characters, e.g. "HM2SJPMSJS".'
-            >
-              <input
-                name="claimedAirbnbBookingId"
-                required
-                defaultValue={query.booking ?? ""}
-                placeholder="e.g. HM2SJPMSJS"
-                className="field"
-                autoCapitalize="characters"
-              />
-            </FormField>
-          </FormSection>
-
-          {SHOW_ID_VERIFICATION ? (
-            <FormSection title="ID verification">
-              <p className="text-xs leading-relaxed text-zinc-500">
-                Upload a clear photo or PDF of your Aadhaar or passport for the host&apos;s records.
-              </p>
-
-              <FormField label="ID type">
-                <select name="idDocumentType" required className="field" defaultValue={idType}>
-                  <option value="aadhaar">Aadhaar card</option>
-                  <option value="passport">Passport</option>
-                  <option value="other">Other government ID</option>
-                </select>
-              </FormField>
-
-              <GuestIdFileField />
-            </FormSection>
-          ) : null}
-
-          {SHOW_STAY_DETAILS ? (
-            <FormSection title="Stay details">
-              <p className="text-xs leading-relaxed text-zinc-500">
-                {hostName} hasn&apos;t connected automated booking sync yet, so please enter your
-                stay dates manually.
-              </p>
-
-              <FormField label="Check-in date">
-                <input name="checkIn" type="date" required className="field" />
-              </FormField>
-
-              <FormField label="Check-out date">
-                <input name="checkOut" type="date" required className="field" />
-              </FormField>
-
-              <FormField
-                label="Number of guests"
-                hint="Including yourself — as on your Airbnb booking."
-              >
-                <input
-                  name="guestCount"
-                  type="number"
-                  min={1}
-                  defaultValue={1}
-                  required
-                  className="field"
-                />
-              </FormField>
-            </FormSection>
-          ) : null}
-
-          <p className="text-xs leading-relaxed text-zinc-400">
-            By submitting, you agree to share this information with {hostName} only for your
-            upcoming stay.
-          </p>
-
-          <SubmitButton className="btn-primary w-full" pendingLabel="Sending…">
-            Send check-in details
-          </SubmitButton>
-        </form>
+        <GuestCheckinForm
+          hostId={host.id}
+          hostSlug={hostSlug}
+          hostName={hostName}
+          defaultName={query.name}
+          defaultPhone={query.phone}
+          defaultBooking={query.booking}
+          defaultIdType={idType}
+        />
       </div>
     </div>
   );

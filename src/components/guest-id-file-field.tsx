@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const MAX_BYTES = 4 * 1024 * 1024;
+const MAX_BYTES = 25 * 1024 * 1024;
 const MAX_EDGE = 1600;
 
 function isHeic(file: File) {
@@ -55,12 +55,12 @@ export function GuestIdFileField() {
       const ready = input.files?.[0];
       if (ready && ready.size > MAX_BYTES) {
         input.value = "";
-        setProblem("That file is too large. Take a photo of the ID, or send a JPEG under 4 MB.");
+        setProblem("That file is too large. Take a photo of the ID, or send a file under 25 MB.");
       }
     } catch {
       if (file.size > MAX_BYTES) {
         input.value = "";
-        setProblem("That file is too large. Take a photo of the ID, or send a JPEG under 4 MB.");
+        setProblem("That file is too large. Take a photo of the ID, or send a file under 25 MB.");
       }
     }
   }
@@ -69,7 +69,7 @@ export function GuestIdFileField() {
     <div className="space-y-1.5">
       <label className="block text-sm font-medium text-zinc-800">Photo or PDF of your ID</label>
       <p className="text-xs leading-relaxed text-zinc-500">
-        Required. A photo is resized on your phone before it is sent. PDF or iPhone HEIC up to 4 MB.
+        Required. A photo is resized on your phone. PDF or an iPhone photo can be up to 25 MB.
       </p>
       <input
         name="idDocument"
